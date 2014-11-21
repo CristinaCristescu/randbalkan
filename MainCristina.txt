@@ -1,0 +1,208 @@
+package MKAgent;
+import java.io.BufferedReader;
+import java.io.EOFException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.PrintWriter;
+import java.io.File;
+import javafx.util.*;
+import java.lang.Integer;
+import java.lang.Double;
+import java.lang.Math;
+/**
+ * The main application class. It also provides methods for communication
+ * with the game engine.
+ */
+public class Main
+{
+    /**
+     * Input from the game engine.
+     */
+    private static Reader input = new BufferedReader(new InputStreamReader(System.in));
+    private static Board board = new Board(6,6);
+    private static Side ourSide;
+    private static PrintWriter printWriter;
+
+
+    /**
+     * Sends a message to the game engine.
+     * @param msg The message.
+     */
+    public static void sendMsg (String msg)
+    {
+    	System.out.print(msg);
+    	System.out.flush();
+    }
+
+    /**
+     * Receives a message from the game engine. Messages are terminated by
+     * a '\n' character.
+     * @return The message.
+     * @throws IOException if there has been an I/O error.
+     */
+    public static String recvMsg() throws IOException
+    {
+    	StringBuilder message = new StringBuilder();
+    	int newCharacter;
+
+    	do
+    	{
+    		newCharacter = input.read();
+    		if (newCharacter == -1)
+    			throw new EOFException("Input ended unexpectedly.");
+    		message.append((char)newCharacter);
+    	} while((char)newCharacter != '\n');
+
+		return message.toString();
+    }
+
+    /**
+    * Stupid Evaluation function 
+    * To be changed.
+    */
+    public static int evaluate(Side side)
+    {
+        // Which board to return from????
+        return board.getSeeds(side, 0);
+    }
+
+    /**
+    * Function for the minimax algorithm.
+    * Initial solution, it has to be improved.
+    */
+    public static int minimax(int depth, Side player) 
+    {
+        double bestValueSoFar;
+        int bestHole;
+        if (depth == 0)
+          return evaluate(player);
+        if (player == ourSide)
+        {
+            bestValueSoFar = Double.NEGATIVE_INFINITY;
+            bestHole = 1;
+            for (int hole = 1; hole < board.getNoOfHoles(); hole++)
+            {    
+                try 
+                {
+                    Board duplicatedBoard = board.clone();
+                    Move newMove = new Move(ourSide, hole);
+                    if (Kalah.isLegalMove(duplicatedBoard, newMove))
+                    {
+                        Kalah.makeMove(duplicatedBoard, newMove);
+                        int currentValue = minimax(depth-1, player);
+                        if (currentValue > bestValueSoFar)
+                        {
+                            bestValueSoFar = currentValue;
+                            bestHole = hole;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    System.err.println(e.getMessage());
+                }    
+            }            
+        }
+        else
+        {
+            bestValueSoFar = Double.POSITIVE_INFINITY;
+            bestHole = 1;
+            for (int hole = 1; hole < board.getNoOfHoles(); hole++)
+            {    
+                try 
+                {
+                    Board duplicatedBoard = board.clone();
+                    Move newMove = new Move(ourSide.opposite(), hole);
+                    if (Kalah.isLegalMove(duplicatedBoard, newMove))
+                    {
+                        Kalah.makeMove(duplicatedBoard, newMove);
+                        int currentValue = minimax(depth-1, player.opposite());
+                        if (currentValue < bestValueSoFar)
+                        {
+                            bestValueSoFar = currentValue;
+                            bestHole = hole;
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    System.err.println(e.getMessage());
+                }
+
+            }            
+        }    
+        return bestHole;
+    }
+	/**
+	 * The main method, invoked when the program is started.
+	 * @param args Command line arguments.
+	 */
+	public static void main(String[] args)
+	{
+        try {printWriter = new PrintWriter ("file.txt");
+		try
+        {
+            String s;
+            while (true)
+            {
+                
+                System.err.println();
+                s = recvMsg();
+                System.err.print("Received: " + s);
+                boolean myturn = false;
+                try {
+                    
+                    MsgType mt = Protocol.getMessageType(s);
+                    switch (mt)
+                    {
+
+                        case START: System.err.println("A start.");
+                            printWriter.println("A start");
+                            boolean first = Protocol.interpretStartMsg(s);
+                            if (first)
+                                ourSide = Side.SOUTH;
+                            System.err.println("Starting player? " + first);
+                            
+                            break;
+                        case STATE: System.err.println("A state.");
+                            printWriter.println("A state:");
+                            Protocol.MoveTurn r = Protocol.interpretStateMsg (s, board);
+                            System.err.println("This was the move: " + r.move);
+                            System.err.println("Is the game over? " + r.end);
+                            if (!r.end) System.err.println("Is it our turn again? " + r.again);
+                            if (r.again) {
+                                printWriter.println("mi turn");
+                                myturn = true;
+                            }
+                            System.err.print("The board:\n" + board);
+                            break;
+                        case END: System.err.println("An end. Bye bye!"); return;
+                    }
+                    printWriter.println("buhu");
+                    
+                    if (myturn || (mt == MsgType.START))
+                    {    
+                        int holeToMove = minimax(4, ourSide);
+                        printWriter.println("mi hole: "+holeToMove);
+                        sendMsg("MOVE;"+holeToMove+"\n");
+                    }    
+                    
+                } catch (InvalidMessageException e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            System.err.println("This shouldn't happen: " + e.getMessage());
+        }
+        printWriter.close();
+    }
+        catch(Exception e)
+        {
+            System.err.println(e.getMessage());
+        }
+	}
+
+}
