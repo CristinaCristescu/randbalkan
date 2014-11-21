@@ -4,6 +4,7 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Random;
 
 /**
  * The main application class. It also provides methods for communication
@@ -11,6 +12,14 @@ import java.io.Reader;
  */
 public class Main
 {
+
+    private static int noHoles = 7;
+    private static int noSeeds = 7;
+    private static boolean first;
+    private static Side side;
+    private static Random random = new Random();
+    private static Board board = new Board(noHoles, noSeeds);
+
     /**
      * Input from the game engine.
      */
@@ -54,7 +63,45 @@ public class Main
 	 */
 	public static void main(String[] args)
 	{
-        // System.out.println("test");
-		// TODO: implement
-	}
+        try
+        {
+            String s;
+            while (true)
+            {
+                System.err.println();
+                s = recvMsg();
+                System.err.print("Received: " + s);
+                try {
+                    MsgType mt = Protocol.getMessageType(s);
+                    switch (mt)
+                    {
+                        case START: System.err.println("A start.");
+                            first = Protocol.interpretStartMsg(s);
+                            System.err.println("Starting player? " + first);
+                            side = (first) ? Side.SOUTH : Side.NORTH;
+                            break;
+                        case STATE: System.err.println("A state.");
+                            Protocol.MoveTurn r = Protocol.interpretStateMsg (s, board);
+                            System.err.println("This was the move: " + r.move);
+                            System.err.println("Is the game over? " + r.end);
+                            if (r.again) {
+                                Move move = new Move(side, random.nextInt(noHoles) + 1);
+                                System.out.println("MOVE;" + move.getHole());
+                            }
+                            if (!r.end) System.err.println("Is it our turn again? " + r.again);
+                            System.err.print("The board:\n" + board);
+                            break;
+                        case END: System.err.println("An end. Bye bye!"); return;
+                    }
+
+                } catch (InvalidMessageException e) {
+                    System.err.println(e.getMessage());
+                }
+            }
+        }
+        catch (IOException e)
+        {
+            System.err.println("This shouldn't happen: " + e.getMessage());
+        }
+    }
 }
