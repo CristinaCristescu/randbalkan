@@ -30,6 +30,8 @@ public class Main
     private static Board globalBoard = new Board(noHoles, noSeeds);
     private static int bestValue;
     private static int chosenHole;
+    private static Double alpha;
+    private static Double beta; 
 
     /**
      * Input from the game engine.
@@ -74,7 +76,7 @@ public class Main
     }
 
 // Basic minimax algorithm - no alpha-beta pruning or heuristics
-    public static int minimax(int depth, boolean isPlayer1, Board aBoard)
+    public static int minimax(int depth, boolean isPlayer1, Board aBoard, double alpha, double beta)
     {
         try{
 //      if depth is 0 return evaluation function
@@ -102,16 +104,24 @@ public class Main
                     Kalah.makeMove(bBoard, move);
                     writer.println("CURRENT CHANGED BOARD" + bBoard);
 
-                    int score = minimax(depth-1, false, bBoard);
-                    writer.println("CURRENT (SHOULD NOT BE CHANGED)" + aBoard);
-                    //  record best value and corresponding hole if it beats result so far
-                    if(bestValue <= score)
+                    int score = minimax(depth-1, false, bBoard, alpha, beta);
+                    if (score <= alpha)
                     {
-                        bestValue = score;
-                        if (depth == ai_depth)
-                            chosenHole = hole;
-                        writer.println("chosenhole changed?" + chosenHole);
-                    }
+                        continue;
+                    } else if (score < beta) {
+                        alpha = score;
+                        writer.println("CURRENT (SHOULD NOT BE CHANGED)" + aBoard);
+                        //  record best value and corresponding hole if it beats result so far
+                        if(bestValue <= score)
+                        {
+                            bestValue = score;
+                            if (depth == ai_depth)
+                                chosenHole = hole;
+                            writer.println("chosenhole changed?" + chosenHole);
+                        }
+                    } else {
+                        return;
+                    }    
                 }
             }
         }
@@ -134,16 +144,25 @@ public class Main
                     //  simulate move
                     Kalah.makeMove(bBoard, move);
                     writer.println("CURRENT CHANGED BOARD" + bBoard);
-                    int score = minimax(depth-1, true, bBoard);
-                    writer.println("CURRENT (SHOULD NOT BE CHANGED)" + aBoard);
-                    //  record best value and corresponding hole if it beats result so far
-                    if(bestValue >= score)
+                    int score = minimax(depth-1, true, bBoard, alpha, beta);
+                    if (score <= alpha)
                     {
-                        bestValue = score;
-                        if (depth == ai_depth)
-                            chosenHole = hole;
-                        writer.println("chosenhole changed?" + chosenHole);
-                    }
+                        return;
+                    } else if (score <beta)
+                    {
+                        beta = score;    
+                        writer.println("CURRENT (SHOULD NOT BE CHANGED)" + aBoard);
+                        //  record best value and corresponding hole if it beats result so far
+                        if(bestValue >= score)
+                        {
+                            bestValue = score;
+                            if (depth == ai_depth)
+                                chosenHole = hole;
+                            writer.println("chosenhole changed?" + chosenHole);
+                        }
+                    } else {
+                        continue;
+                    }    
                 }
             }
         }
@@ -183,7 +202,9 @@ public class Main
                             {
                                 try {
                                     duplicateB = globalBoard.clone();
-                                    int bestEvalScore = minimax(ai_depth, true, duplicateB);
+                                    alpha = Double.NEGATIVE_INFINITY;
+                                    beta = Double.POSITIVE_INFINITY;
+                                    int bestEvalScore = minimax(ai_depth, true, duplicateB, alpha, beta);
                                     writer.println("INITIAL: player " + first + " hole - " + chosenHole + " and eval " + bestEvalScore);
                                     sendMsg(Protocol.createMoveMsg(chosenHole));
                                 } catch (CloneNotSupportedException e) {
@@ -200,7 +221,9 @@ public class Main
                                 try {
                                     duplicateB = globalBoard.clone();
                                     writer.println("DUPLICATED: \n" + duplicateB);
-                                    int bestEvalScore = minimax(ai_depth, true, duplicateB);
+                                    alpha = Double.NEGATIVE_INFINITY;
+                                    beta = Double.POSITIVE_INFINITY;
+                                    int bestEvalScore = minimax(ai_depth, true, duplicateB, alpha, beta);
                                     writer.println("MIDDLE: player " + first + " hole - " + chosenHole + " and eval " + bestEvalScore);
                                     sendMsg(Protocol.createMoveMsg(chosenHole));
                                 } catch (CloneNotSupportedException e) {
