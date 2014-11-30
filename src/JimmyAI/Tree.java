@@ -1,6 +1,4 @@
-package JimmyPlayer;
-
-import java.util.ArrayList;
+package JimmyAI;
 
 public class Tree
 {

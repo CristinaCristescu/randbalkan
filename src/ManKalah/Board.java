@@ -160,18 +160,16 @@ public class Board
   
   public String toString()
   {
-    StringBuilder boardString = new StringBuilder();
-    
-    boardString.append(this.board[0][0] + "  --");
-    for (int i = this.holes; i >= 1; i--) {
-      boardString.append("  " + this.board[0][i]);
-    }
-    boardString.append("\n");
-    for (int i = 1; i <= this.holes; i++) {
-      boardString.append(this.board[1][i] + "  ");
-    }
-    boardString.append("--  " + this.board[1][0] + "\n");
-    
-    return boardString.toString();
+	StringBuilder boardString = new StringBuilder();
+
+	boardString.append(board[NORTH_ROW][0] + "  --");
+	for (int i=holes; i >= 1; i--)
+		boardString.append("  " + board[NORTH_ROW][i]);
+	boardString.append("\n");
+	for (int i=1; i <= holes; i++)
+		boardString.append(board[SOUTH_ROW][i] + "  ");
+	boardString.append("--  " + board[SOUTH_ROW][0] + "\n");
+
+	return boardString.toString();
   }
 }

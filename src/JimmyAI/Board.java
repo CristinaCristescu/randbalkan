@@ -1,4 +1,4 @@
-package JimmyPlayer;
+package JimmyAI;
 
 import java.util.ArrayList;
 import java.util.Observable;
@@ -95,14 +95,8 @@ public class Board
     if (paramInt2 < 0) {
       throw new IllegalArgumentException("There has to be a non-negative number of seeds, but " + paramInt2 + " were requested.");
     }
-    try{
     this.board[indexOfSide(paramSide)][paramInt1] += paramInt2;
-    }
-    catch(Exception e)
-    {
-    	String s = "hello";
-    	s +="s";
-    }
+    
     setChanged();
   }
   
@@ -168,24 +162,22 @@ public class Board
   
   public String toString()
   {
-    StringBuilder localStringBuilder = new StringBuilder();
-    
-    localStringBuilder.append(this.board[0][0] + "  --");
-    for (int i = this.holes; i >= 1; i--) {
-      localStringBuilder.append("  " + this.board[0][i]);
-    }
-    localStringBuilder.append("\n");
-    for (int i = 1; i <= this.holes; i++) {
-      localStringBuilder.append(this.board[1][i] + "  ");
-    }
-    localStringBuilder.append("--  " + this.board[1][0] + "\n");
-    
-    return localStringBuilder.toString();
-  }
+	StringBuilder boardString = new StringBuilder();
+
+	boardString.append(board[NORTH_ROW][0] + "  --");
+	for (int i=holes; i >= 1; i--)
+		boardString.append("  " + board[NORTH_ROW][i]);
+	boardString.append("\n");
+	for (int i=1; i <= holes; i++)
+		boardString.append(board[SOUTH_ROW][i] + "  ");
+	boardString.append("--  " + board[SOUTH_ROW][0] + "\n");
+
+	return boardString.toString();
+}
   
   public ArrayList<Integer> getPossibleMoves(Side paramSide)
   {
-    ArrayList localArrayList = new ArrayList();
+    ArrayList<Integer> localArrayList = new ArrayList<Integer>();
     int i = indexOfSide(paramSide);
     for (int j = 1; j <= getNoOfHoles(); j++) {
       if (this.board[i][j] > 0) {

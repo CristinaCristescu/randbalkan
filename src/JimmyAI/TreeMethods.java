@@ -1,6 +1,5 @@
-package JimmyPlayer;
+package JimmyAI;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collections;
 
@@ -25,7 +24,7 @@ public class TreeMethods
   {
     if (paramInt1 <= paramInt2)
     {
-      ArrayList localArrayList = paramNode.board.getPossibleMoves(paramNode.nextMove);
+      ArrayList<Integer> localArrayList = paramNode.board.getPossibleMoves(paramNode.nextMove);
       for (int i = 0; i < localArrayList.size(); i++) {
         try
         {
@@ -72,7 +71,7 @@ public class TreeMethods
   
   private static ArrayList<Node> getbestNodes(Tree paramTree)
   {
-    ArrayList localArrayList1 = new ArrayList();
+    ArrayList<Node> localArrayList1 = new ArrayList<Node>();
     
     localArrayList1 = getbestLeafNodesRecurse(paramTree.root, localArrayList1);
     
@@ -80,7 +79,7 @@ public class TreeMethods
     
     int i = localArrayList1.size() / 100;
     
-    ArrayList localArrayList2 = new ArrayList();
+    ArrayList<Node> localArrayList2 = new ArrayList<Node>();
     for (int j = 0; j < i; j++) {
       localArrayList2.add(localArrayList1.get(j));
     }
@@ -93,7 +92,7 @@ public class TreeMethods
     {
       Tree localTree = buildTree(paramBoard, paramInt, side);
       
-      ArrayList localArrayList = getbestNodes(localTree);
+      ArrayList<?> localArrayList = getbestNodes(localTree);
       for (int j = 0; j < localArrayList.size(); j++) {
         buildTreeRecurse((Node)localArrayList.get(j), paramInt, paramInt + 5, side);
       }

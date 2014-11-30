@@ -1,6 +1,5 @@
-package JimmyPlayer;
+package JimmyAI;
 
-import java.io.PrintStream;
 import java.util.ArrayList;
 
 public class Node
@@ -17,7 +16,7 @@ public class Node
   
   public Node(Node paramNode, Board paramBoard, int paramInt1, int paramInt2, Integer paramInteger, Side paramSide1, Side paramSide2)
   {
-    this.children = new ArrayList();
+    this.children = new ArrayList<Node>();
     this.parent = paramNode;
     this.board = paramBoard;
     this.moveFromParent = paramInteger;
@@ -31,7 +30,7 @@ public class Node
   public Node(double score)
   {
     this.score = score;
-    this.children = new ArrayList();
+    this.children = new ArrayList<Node>();
   }
   
   public void addChild(Node paramNode)

@@ -1,4 +1,4 @@
-package JimmyPlayer;
+package JimmyAI;
 
 import java.util.Comparator;
 

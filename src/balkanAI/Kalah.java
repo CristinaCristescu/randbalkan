@@ -74,6 +74,8 @@ public class Kalah
      * @param move The move to check.
      * @return true if the move is legal, false if not.
      */
+    
+    
     public static boolean isLegalMove (Board board, Move move)
     {
     	// check if the hole is existent and non-empty:

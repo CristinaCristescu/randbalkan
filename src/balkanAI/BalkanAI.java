@@ -1,9 +1,4 @@
 package balkanAI;
-import java.io.BufferedReader;
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
 import java.util.Random;
 
 import KalahAI.KalahAI;
@@ -14,16 +9,24 @@ import KalahAI.KalahAI;
  */
 public class BalkanAI implements KalahAI
 {
-	private static boolean secondTurn;
-    private static int noHoles = 7;
-    private static int noSeeds = 7;
-    private static boolean first;
-    private static Side side;
-    private static Random random = new Random();
-    private static Board board = new Board(noHoles, noSeeds);
+	private boolean secondTurn;
+    private boolean first;
+    private int noHoles;
+    private Side ourSide;
+    private Random random = new Random();
+    private Board board;
 
+    public BalkanAI(int noHoles, int side)
+    {
+    	this.noHoles = noHoles;
+    	board = new Board(noHoles,noHoles);
+    	ourSide = side == 0 ? Side.NORTH : Side.SOUTH;
+    }
     
-    
+    public String toString()
+    {
+    	return "BalkanAI";
+    }
     /**
      * Input from the game engine.
      */
@@ -77,23 +80,52 @@ public class BalkanAI implements KalahAI
             MsgType mt = Protocol.getMessageType(s);
             switch (mt)
             {
-                case START: System.err.println("A start.");
+                case START:
+                    System.err.println("A start.");
                     first = Protocol.interpretStartMsg(s);
                     System.err.println("Starting player? " + first);
-                    side = (first) ? Side.SOUTH : Side.NORTH;
-                    return "";
-                case STATE: System.err.println("A state.");
-                    Protocol.MoveTurn r = Protocol.interpretStateMsg (s, board);
-                    System.err.println("This was the move: " + r.move);
-                    System.err.println("Is the game over? " + r.end);
-                    if (r.again) {
-                        Move move = new Move(side, random.nextInt(noHoles) + 1);
-                        return "MOVE;" + move.getHole();
+                    if (first)
+                    {
+                      Move move = new Move(ourSide, random.nextInt(noHoles) + 1);
+                      
+                      String msg;
+                      msg = Protocol.createMoveMsg(move.getHole());
+                      
+                      System.out.print(msg);
+                      return msg;
                     }
-                    if (!r.end) System.err.println("Is it our turn again? " + r.again);
-                    System.err.print("The board:\n" + board);
+                    else
+                    {
+                    	secondTurn = true;
+                    }
+                    return "";
+                    
+                    
+                case STATE: 
+                	System.err.println("A state.");
+                    
+                	Protocol.MoveTurn r = Protocol.interpretStateMsg (s, board);
+                	//System.err.println("This was the move: " + r.move);
+                    //System.err.println("Is the game over? " + r.end);
+                    
+                    //if (!r.end) 
+                    //	System.err.println("Is it our turn again? " + r.again);
+                    
+                	System.err.print("The board:\n" + board);
+       
+                    if (r.again) {
+                        Move move = new Move(ourSide, random.nextInt(noHoles) + 1);
+                        while(!Kalah.isLegalMove(board, move))
+                        	move = new Move(ourSide, random.nextInt(noHoles) + 1);
+                        
+                        String msg = Protocol.createMoveMsg(move.getHole());	
+                        System.out.print(ourSide + "  " + msg);
+                        return msg;
+                    }
                     break;
-                case END: System.err.println("An end. Bye bye!"); 
+                case END: 
+                	System.err.println("An end. Bye bye!"); 
+                	
                 return "";
             }
 

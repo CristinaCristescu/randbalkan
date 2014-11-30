@@ -1,5 +1,6 @@
 package ManKalah;
 
+@SuppressWarnings("serial")
 public class InvalidMessageException
   extends Exception
 {

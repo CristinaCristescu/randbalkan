@@ -2,6 +2,7 @@ package balkanAI;
 /**
  * Thrown to indicate that a message is invalid according to the protocol.
  */
+@SuppressWarnings("serial")
 public class InvalidMessageException extends Exception
 {
 	// no default constructor, require a message

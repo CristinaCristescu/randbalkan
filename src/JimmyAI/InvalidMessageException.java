@@ -1,5 +1,6 @@
-package JimmyPlayer;
+package JimmyAI;
 
+@SuppressWarnings("serial")
 public class InvalidMessageException
   extends Exception
 {

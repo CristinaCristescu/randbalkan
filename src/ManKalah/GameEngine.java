@@ -1,43 +1,40 @@
 package ManKalah;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.PrintStream;
-import java.util.concurrent.TimeoutException;
 
-import JimmyPlayer.JimmyPlayer;
+import JimmyAI.JimmyAI;
 import KalahAI.KalahAI;
 import balkanAI.BalkanAI;
 
 public class GameEngine
 {
   private static final Side startingSide = Side.SOUTH;
+  /*
   private static final int holes = 7;
   private static final int seeds = 7;
   private static final long agentTimeout = 3600000L;
   private static final boolean printBoardToStderr = true;
-  private static final boolean allowSwapping = true;
+  private static final boolean allowSwapping = true;*/
   private Kalah kalah;
   private Player playerNorth;
   private Player playerSouth;
   
   public static void main(String[] args)
   {  
-    KalahAI balkanAI = new JimmyPlayer();
-    KalahAI jimmyPlayer = new JimmyPlayer();
+    KalahAI player1 = new BalkanAI(7, startingSide == Side.NORTH ? 0 : 1);
+    KalahAI player2 = new BalkanAI(7, startingSide == Side.NORTH ? 1 : 0);
    
     Player playerSouth;
     Player playerNorth;
     
     if (startingSide == Side.NORTH)
     {
-      playerNorth = new Player(1, args[0], balkanAI, Side.NORTH);
-      playerSouth = new Player(2, args[1], jimmyPlayer, Side.SOUTH);
+      playerNorth = new Player(1, player1.toString(), player1, Side.NORTH);
+      playerSouth = new Player(2, player2.toString(), player2, Side.SOUTH);
     }
     else
     {
-      playerSouth = new Player(1, args[0], balkanAI, Side.SOUTH);
-      playerNorth = new Player(2, args[1], jimmyPlayer, Side.NORTH);
+      playerSouth = new Player(1, player1.toString(), player1, Side.SOUTH);
+      playerNorth = new Player(2, player2.toString(), player2, Side.NORTH);
     }
 
     Board board = new Board(7, 7);
