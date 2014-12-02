@@ -4,13 +4,6 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Random;
-import java.io.PrintWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.lang.Integer;
-import java.lang.Double;
-import java.lang.Math;
 
 /**
  * The main application class. It also provides methods for communication
@@ -18,22 +11,14 @@ import java.lang.Math;
  */
 public class Main
 {
-
-
-    private static PrintWriter writer = null;
     private static int noHoles = 7;
     private static int noSeeds = 7;
-    private static int ai_depth = 8;
+    private static int ai_depth = 5;
     private static boolean first;
     private static Side side;
-    private static Random random = new Random();
     private static Board globalBoard = new Board(noHoles, noSeeds);
-    private static int bestValue;
-    private static int chosenHole;
 
-    /**
-     * Input from the game engine.
-     */
+
     private static Reader input = new BufferedReader(new InputStreamReader(System.in));
 
     /**
@@ -68,92 +53,6 @@ public class Main
 		return message.toString();
     }
 
-    public static int evalFunction(Board aBoard)
-    {
-        return aBoard.getSeedsInStore((first ? Side.SOUTH : Side.NORTH)) - aBoard.getSeedsInStore((first ? Side.NORTH : Side.SOUTH));
-    }
-
-// Basic minimax algorithm - no alpha-beta pruning or heuristics
-    public static int minimax(int depth, boolean isPlayer1, Board aBoard)
-    {
-        try{
-//      if depth is 0 return evaluation function
-        if(depth == 0)
-            return evalFunction(aBoard);
-//      if it's Player 1's turn
-        if (isPlayer1)
-        {
-            writer.println("MAX: " + depth + " \n" + aBoard);
-            bestValue = Integer.MIN_VALUE;
-            // evaluate all holes
-            for(int hole = 1; hole <= aBoard.getNoOfHoles(); hole++)
-            {
-                //  duplicate board
-
-                Move move = new Move((first ? Side.SOUTH : Side.NORTH),hole);
-
-
-                //  if move is legal
-                if(Kalah.isLegalMove(aBoard, move))
-                {
-                    writer.println("CURRENT BOARD" + aBoard);
-                    Board bBoard = aBoard.clone();
-                    //  simulate move
-                    Kalah.makeMove(bBoard, move);
-                    writer.println("CURRENT CHANGED BOARD" + bBoard);
-
-                    int score = minimax(depth-1, false, bBoard);
-                    writer.println("CURRENT (SHOULD NOT BE CHANGED)" + aBoard);
-                    //  record best value and corresponding hole if it beats result so far
-                    if(bestValue <= score)
-                    {
-                        bestValue = score;
-                        if (depth == ai_depth)
-                            chosenHole = hole;
-                        writer.println("chosenhole changed?" + chosenHole);
-                    }
-                }
-            }
-        }
-        else
-        {
-
-            writer.println("MIN: " + depth + " \n" + aBoard);
-            bestValue = Integer.MAX_VALUE;
-            // evaluate all holes
-            for(int hole = 1; hole <= aBoard.getNoOfHoles(); hole++)
-            {
-                //  duplicate board
-
-                Move move = new Move((first ? Side.SOUTH : Side.NORTH),hole);
-                //  if move is legal
-                if(Kalah.isLegalMove(aBoard, move))
-                {
-                    writer.println("CURRENT BOARD" + aBoard);
-                    Board bBoard = aBoard.clone();
-                    //  simulate move
-                    Kalah.makeMove(bBoard, move);
-                    writer.println("CURRENT CHANGED BOARD" + bBoard);
-                    int score = minimax(depth-1, true, bBoard);
-                    writer.println("CURRENT (SHOULD NOT BE CHANGED)" + aBoard);
-                    //  record best value and corresponding hole if it beats result so far
-                    if(bestValue >= score)
-                    {
-                        bestValue = score;
-                        if (depth == ai_depth)
-                            chosenHole = hole;
-                        writer.println("chosenhole changed?" + chosenHole);
-                    }
-                }
-            }
-        }
-        }
-        catch (Exception e) {
-           writer.println("FUCK U JAVA");
-        }
-
-        return bestValue;
-    }
 
 	/**
 	 * The main method, invoked when the program is started.
@@ -161,10 +60,7 @@ public class Main
 	 */
 	public static void main(String[] args)
 	{
-        try
-        {
-            writer = new PrintWriter(new FileWriter("afile", true));
-            Board duplicateB;
+        try {
             String s;
             while (true)
             {
@@ -181,32 +77,21 @@ public class Main
                             side = (first) ? Side.SOUTH : Side.NORTH;
                             if(first)
                             {
-                                try {
-                                    duplicateB = globalBoard.clone();
-                                    int bestEvalScore = minimax(ai_depth, true, duplicateB);
-                                    writer.println("INITIAL: player " + first + " hole - " + chosenHole + " and eval " + bestEvalScore);
-                                    sendMsg(Protocol.createMoveMsg(chosenHole));
-                                } catch (CloneNotSupportedException e) {
-                                    e.printStackTrace();
-                                }
-
+                                Move move = MiniMax.getBestMove(ai_depth, new State(true, globalBoard, side, null));
+                                sendMsg(Protocol.createMoveMsg(move.getHole()));
                             }
                             break;
                         case STATE: System.err.println("A state.");
                             Protocol.MoveTurn r = Protocol.interpretStateMsg (s, globalBoard);
                             System.err.println("This was the move: " + r.move);
                             System.err.println("Is the game over? " + r.end);
+                            // If swapped
+                            if (r.move == -1) {
+                                side = side.opposite();
+                            }
                             if (r.again) {
-                                try {
-                                    duplicateB = globalBoard.clone();
-                                    writer.println("DUPLICATED: \n" + duplicateB);
-                                    int bestEvalScore = minimax(ai_depth, true, duplicateB);
-                                    writer.println("MIDDLE: player " + first + " hole - " + chosenHole + " and eval " + bestEvalScore);
-                                    sendMsg(Protocol.createMoveMsg(chosenHole));
-                                } catch (CloneNotSupportedException e) {
-                                    e.printStackTrace();
-                                }
-
+                                Move move = MiniMax.getBestMove(ai_depth, new State(true, globalBoard, side, null));
+                                sendMsg(Protocol.createMoveMsg(move.getHole()));
                             }
                             if (!r.end) System.err.println("Is it our turn again? " + r.again);
                             System.err.print("The board:\n" + globalBoard);
@@ -218,12 +103,9 @@ public class Main
                     System.err.println(e.getMessage());
                 }
             }
-        }
-        catch (IOException e)
-        {
+        } catch (IOException e) {
             System.err.println("This shouldn't happen: " + e.getMessage());
-        } finally {
-            writer.close();
         }
+
     }
 }
