@@ -1,9 +1,14 @@
 package MKAgent;
 import java.util.ArrayList;
+import java.io.PrintWriter;
+import java.io.IOException;
 
 public class MiniMax {
 
+    public static PrintWriter writer;
+
     public static double max(int depth, State state) {
+        System.err.println("Depth: " + depth);
         if (depth == 0 || state.isEndState())
             return state.evaluate();
 
@@ -11,7 +16,11 @@ public class MiniMax {
         double bestValue = Double.NEGATIVE_INFINITY, currentValue;
 
         for (State childState : childStates) {
-            currentValue = min(depth - 1, childState);
+            if (state.mySide == childState.mySide)
+                currentValue = max(depth - 1, childState);
+            else
+                currentValue = min(depth - 1, childState);
+
             if (currentValue > bestValue)
                 bestValue = currentValue;
         }
@@ -19,6 +28,7 @@ public class MiniMax {
     }
 
     public static double min (int depth, State state) {
+        System.err.println("Depth: " + depth);
         if (depth == 0 || state.isEndState())
             return state.evaluate();
 
@@ -26,7 +36,11 @@ public class MiniMax {
         double bestValue = Double.POSITIVE_INFINITY, currentValue;
 
         for (State childState : childStates) {
-            currentValue = max(depth - 1, childState);
+            if (state.mySide == childState.mySide)
+                currentValue = min(depth - 1, childState);
+            else
+                currentValue = max(depth - 1, childState);
+
             if (currentValue < bestValue)
                 bestValue = currentValue;
         }
@@ -34,7 +48,8 @@ public class MiniMax {
     }
 
     // Do the first iteration of minimax for player MAX (us)
-    public static Move getBestMove(int depth, State state) {
+    public static Move getBestMove(int depth, State state) throws IOException{
+        writer = new PrintWriter("asd.txt", "UTF-8");
         ArrayList<State> childStates = state.getChildStates();
         double bestValue = Double.NEGATIVE_INFINITY, currentValue;
 
@@ -51,6 +66,7 @@ public class MiniMax {
                 bestState = childState;
             }
         }
+        writer.close();
 
         // TODO: Remove this if once debugging is over
         if (bestState != null)

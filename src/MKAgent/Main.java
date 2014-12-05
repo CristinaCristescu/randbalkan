@@ -4,6 +4,10 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.io.FileNotFoundException;
 
 /**
  * The main application class. It also provides methods for communication
@@ -13,7 +17,7 @@ public class Main
 {
     private static int noHoles = 7;
     private static int noSeeds = 7;
-    private static int ai_depth = 5;
+    private static int ai_depth = 12;
     private static boolean first;
     private static Side side;
     private static Board globalBoard = new Board(noHoles, noSeeds);
@@ -58,8 +62,13 @@ public class Main
 	 * The main method, invoked when the program is started.
 	 * @param args Command line arguments.
 	 */
-	public static void main(String[] args)
+	public static void main(String[] args) throws FileNotFoundException
 	{
+        PrintStream console = System.err;
+        File file = new File("output.txt");
+        FileOutputStream fos = new FileOutputStream(file);
+        PrintStream ps = new PrintStream(fos);
+        System.setErr(ps);
         try {
             String s;
             while (true)
@@ -77,7 +86,7 @@ public class Main
                             side = (first) ? Side.SOUTH : Side.NORTH;
                             if(first)
                             {
-                                Move move = MiniMax.getBestMove(ai_depth, new State(true, globalBoard, side, null));
+                                Move move = AlphaBeta.getBestMove(ai_depth, new State(true, globalBoard, side, null));
                                 sendMsg(Protocol.createMoveMsg(move.getHole()));
                             }
                             break;
@@ -90,7 +99,7 @@ public class Main
                                 side = side.opposite();
                             }
                             if (r.again) {
-                                Move move = MiniMax.getBestMove(ai_depth, new State(true, globalBoard, side, null));
+                                Move move = AlphaBeta.getBestMove(ai_depth, new State(true, globalBoard, side, null));
                                 sendMsg(Protocol.createMoveMsg(move.getHole()));
                             }
                             if (!r.end) System.err.println("Is it our turn again? " + r.again);

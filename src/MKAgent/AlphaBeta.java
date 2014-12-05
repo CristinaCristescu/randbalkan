@@ -6,37 +6,55 @@ import java.util.ArrayList;
 public class AlphaBeta {
 
     public static double max(int depth, State state, double alpha, double beta) {
-        if (depth == 0 || state.isEndState())
+        if (depth == 0 || state.isEndState()) {
+            // System.err.println("Base case | Depth: " + depth + "Score: " + state.evaluate());
             return state.evaluate();
+        }
 
         ArrayList<State> childStates = state.getChildStates();
-        double bestValue = alpha, currentValue;
+        double currentValue;
 
         for (State childState : childStates) {
-            currentValue = min(depth - 1, childState, bestValue, beta);
-            if (currentValue > bestValue)
-                bestValue = currentValue;
-            if (bestValue > beta)
+            if (state.mySide == childState.mySide)
+                currentValue = max(depth - 1, childState, alpha, beta);
+            else
+                currentValue = min(depth - 1, childState, alpha, beta);
+            if (currentValue >= beta) {
+                // System.err.println("Depth: " + depth + "Score: " + beta);
                 return beta;
+            }
+            if (currentValue > alpha)
+                alpha = currentValue;
         }
-        return bestValue;
+        // System.err.println("Depth: " + depth + "Score: " + alpha);
+        return alpha;
     }
 
     public static double min (int depth, State state, double alpha, double beta) {
-        if (depth == 0 || state.isEndState())
+        if (depth == 0 || state.isEndState()) {
+            // System.err.println("Base case | Depth: " + depth + "Score: " + state.evaluate());
             return state.evaluate();
+        }
 
         ArrayList<State> childStates = state.getChildStates();
-        double bestValue = beta, currentValue;
+        double currentValue;
 
         for (State childState : childStates) {
-            currentValue = max(depth - 1, childState, alpha, bestValue);
-            if (currentValue < bestValue)
-                bestValue = currentValue;
-            if (bestValue < alpha)
+            // System.err.println("State: \n");
+            if (state.mySide == childState.mySide)
+                currentValue = min(depth - 1, childState, alpha, beta);
+            else
+                currentValue = max(depth - 1, childState, alpha, beta);
+
+            if (currentValue <= alpha) {
+                // System.err.println("Depth: " + depth + "Score: " + alpha);
                 return alpha;
+            }
+            if (currentValue < beta)
+                beta = currentValue;
         }
-        return bestValue;
+        // System.err.println("Depth: " + depth + "Score: " + beta);
+        return beta;
     }
 
     // Do the first iteration of minimax for player MAX (us)
@@ -63,7 +81,7 @@ public class AlphaBeta {
             return bestState.move;
         else
         {
-            System.err.println("Balkan algorithm tried to perform an illegal move.");
+            // System.err.println("Balkan algorithm tried to perform an illegal move.");
             return null;
         }
     }

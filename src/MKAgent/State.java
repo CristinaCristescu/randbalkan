@@ -21,7 +21,14 @@ public class State {
     }
 
     public double evaluate() {
-        return board.getSeedsInStore(mySide) - board.getSeedsInStore(mySide.opposite());
+        if (isMyTurn) {
+            System.err.println("My Side: " + (mySide == Side.NORTH ? "North" : "South"));
+            return board.getSeedsInStore(mySide) - board.getSeedsInStore(mySide.opposite());
+        }
+        else {
+            System.err.println("My Side: " + (mySide.opposite() == Side.NORTH ? "North" : "South"));
+            return board.getSeedsInStore(mySide.opposite()) - board.getSeedsInStore(mySide);
+        }
     }
 
     public ArrayList<State> getChildStates() {
@@ -33,8 +40,11 @@ public class State {
                 Move move = new Move(mySide, hole);
                 if (Kalah.isLegalMove(board, move)) {
                     Board newBoard = board.clone();
-                    Kalah.makeMove(newBoard, move);
-                    states.add(new State(!isMyTurn, newBoard, mySide.opposite(), move));
+                    Side side = Kalah.makeMove(newBoard, move);
+                    if (side == mySide)
+                        states.add(new State(isMyTurn, newBoard, side, move));
+                    else
+                        states.add(new State(!isMyTurn, newBoard, side, move));
                 }
             }
         } catch (CloneNotSupportedException e) {
