@@ -17,10 +17,12 @@ public class Main
 {
     private static int noHoles = 7;
     private static int noSeeds = 7;
-    private static int ai_depth = 12;
+    private static int ai_depth = 9;
+    private static boolean isFirstMove = true;
     private static boolean first;
     private static Side side;
     private static Board globalBoard = new Board(noHoles, noSeeds);
+    private static Board initialBoard;
 
 
     private static Reader input = new BufferedReader(new InputStreamReader(System.in));
@@ -89,9 +91,20 @@ public class Main
                                 Move move = AlphaBeta.getBestMove(ai_depth, new State(true, globalBoard, side, null));
                                 sendMsg(Protocol.createMoveMsg(move.getHole()));
                             }
+                            else
+                                initialBoard = globalBoard.clone();
                             break;
                         case STATE: System.err.println("A state.");
                             Protocol.MoveTurn r = Protocol.interpretStateMsg (s, globalBoard);
+                            if (!first && isFirstMove) {
+                                isFirstMove = false;
+                                Move bestFirstMove = AlphaBeta.getBestMove(ai_depth, new State(true, initialBoard, Side.SOUTH, null));
+                                if (bestFirstMove.getHole() == r.move) {
+                                    sendMsg(Protocol.createSwapMsg());
+                                    side = side.opposite();
+                                    break;
+                                }
+                            }
                             System.err.println("This was the move: " + r.move);
                             System.err.println("Is the game over? " + r.end);
                             // If swapped
@@ -109,6 +122,9 @@ public class Main
                     }
 
                 } catch (InvalidMessageException e) {
+                    System.err.println(e.getMessage());
+                }
+                catch (CloneNotSupportedException e) {
                     System.err.println(e.getMessage());
                 }
             }
