@@ -1,5 +1,6 @@
 package MKAgent;
 import java.util.ArrayList;
+import java.util.Collections;
 
 // This was tested to see if it returns same values with Minimax(which it should)
 // TODO: refactor everything into one method once testing is complete to speed stuff up
@@ -57,12 +58,29 @@ public class AlphaBeta {
         return beta;
     }
 
+    public static State moveOrdering(int depth, State state) {
+
+        ArrayList<State> childStates = state.getChildStates();
+
+        // In case there's only one possible move, return that
+        if (childStates.size() == 1)
+            return state;
+
+        for (State childState : childStates) {
+            childState.score = min(depth - 1, childState, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        }
+
+        Collections.sort(childStates);
+        return state;
+    }
     // Do the first iteration of minimax for player MAX (us)
     public static Move getBestMove(int depth, State state) {
-        ArrayList<State> childStates = state.getChildStates();
+        
         double bestValue = Double.NEGATIVE_INFINITY, currentValue;
 
         State bestState = null;
+        state = moveOrdering(3, state);
+        ArrayList<State> childStates = state.getChildStates();
 
         // In case there's only one possible move, return that
         if (childStates.size() == 1)

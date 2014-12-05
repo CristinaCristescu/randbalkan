@@ -2,12 +2,13 @@ package MKAgent;
 
 import java.util.ArrayList;
 
-public class State {
+public class State implements Comparable<State> {
     public boolean isMyTurn;
     public Side mySide;
     // This is the move that led to the state of board
     public Move move;
     public Board board;
+    public double score;
 
     public State(boolean isMyTurn, Board board, Side side, Move move) {
         this.board = board;
@@ -53,5 +54,10 @@ public class State {
         // So far, states doesn't consider making an extra move. Need to add code to add the
         // extra states here.
         return states;
+    }
+
+    @Override
+    public int compareTo(State otherState) {
+        return (this.score < otherState.score ) ? -1: (this.score > otherState.score) ? 1 : 0 ;
     }
 }

@@ -17,7 +17,7 @@ public class Main
 {
     private static int noHoles = 7;
     private static int noSeeds = 7;
-    private static int ai_depth = 9;
+    private static int ai_depth = 14;
     private static boolean isFirstMove = true;
     private static boolean first;
     private static Side side;
