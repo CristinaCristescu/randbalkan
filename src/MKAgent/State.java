@@ -15,6 +15,7 @@ public class State implements Comparable<State> {
         this.isMyTurn = isMyTurn;
         this.mySide = side;
         this.move = move;
+        this.score = 0;
     }
 
     public boolean isEndState() {
@@ -23,11 +24,11 @@ public class State implements Comparable<State> {
 
     public double evaluate() {
         if (isMyTurn) {
-            System.err.println("My Side: " + (mySide == Side.NORTH ? "North" : "South"));
+            //System.err.println("My Side: " + (mySide == Side.NORTH ? "North" : "South"));
             return board.getSeedsInStore(mySide) - board.getSeedsInStore(mySide.opposite());
         }
         else {
-            System.err.println("My Side: " + (mySide.opposite() == Side.NORTH ? "North" : "South"));
+            //System.err.println("My Side: " + (mySide.opposite() == Side.NORTH ? "North" : "South"));
             return board.getSeedsInStore(mySide.opposite()) - board.getSeedsInStore(mySide);
         }
     }
@@ -58,6 +59,11 @@ public class State implements Comparable<State> {
 
     @Override
     public int compareTo(State otherState) {
-        return (this.score < otherState.score ) ? -1: (this.score > otherState.score) ? 1 : 0 ;
+        return (this.score < otherState.score ) ? 1: (this.score > otherState.score) ? -1 : 0 ;
+    }
+
+    @Override
+    public String toString() {
+        return "" + score;
     }
 }

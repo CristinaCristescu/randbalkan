@@ -8,16 +8,23 @@ public class AlphaBeta {
 
     public static double max(int depth, State state, double alpha, double beta) {
         if (depth == 0 || state.isEndState()) {
-            // System.err.println("Base case | Depth: " + depth + "Score: " + state.evaluate());
+             //System.err.println("Base case | Depth: " + depth + "Score: " + state.evaluate());
             return state.evaluate();
         }
 
-        ArrayList<State> childStates = state.getChildStates();
+        ArrayList<State> childStates;
+        if (depth > 4) {
+            childStates = moveOrdering(3, state);
+        } else {
+            childStates = state.getChildStates();
+        }    
+
+        
         double currentValue;
 
         for (State childState : childStates) {
             if (state.mySide == childState.mySide)
-                currentValue = max(depth - 1, childState, alpha, beta);
+                currentValue = max(depth, childState, alpha, beta);
             else
                 currentValue = min(depth - 1, childState, alpha, beta);
             if (currentValue >= beta) {
@@ -37,13 +44,17 @@ public class AlphaBeta {
             return state.evaluate();
         }
 
-        ArrayList<State> childStates = state.getChildStates();
-        double currentValue;
+        ArrayList<State> childStates;
+        if (depth > 4) {
+            childStates = moveOrdering(3, state);
+        } else {
+            childStates = state.getChildStates();
+        }         double currentValue;
 
         for (State childState : childStates) {
             // System.err.println("State: \n");
             if (state.mySide == childState.mySide)
-                currentValue = min(depth - 1, childState, alpha, beta);
+                currentValue = min(depth, childState, alpha, beta);
             else
                 currentValue = max(depth - 1, childState, alpha, beta);
 
@@ -58,29 +69,32 @@ public class AlphaBeta {
         return beta;
     }
 
-    public static State moveOrdering(int depth, State state) {
+    public static ArrayList<State> moveOrdering(int depth, State state) {
 
         ArrayList<State> childStates = state.getChildStates();
 
         // In case there's only one possible move, return that
         if (childStates.size() == 1)
-            return state;
+            return childStates;
 
         for (State childState : childStates) {
             childState.score = min(depth - 1, childState, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            //System.err.println(childState.score);
         }
 
         Collections.sort(childStates);
-        return state;
+        return childStates;
     }
     // Do the first iteration of minimax for player MAX (us)
     public static Move getBestMove(int depth, State state) {
-        
+        ArrayList<State> childStates;
+
         double bestValue = Double.NEGATIVE_INFINITY, currentValue;
 
         State bestState = null;
-        state = moveOrdering(3, state);
-        ArrayList<State> childStates = state.getChildStates();
+        //System.err.println("Before ordering: " + state.getChildStates().toString());
+        childStates = moveOrdering(3, state);
+        //System.err.println("After ordering: " + childStates.toString());
 
         // In case there's only one possible move, return that
         if (childStates.size() == 1)
