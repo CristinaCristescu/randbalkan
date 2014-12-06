@@ -3,13 +3,13 @@ package MKAgent;
 
 public class Heuristic
 {
-  public static double getScore(State state)
+  public static int getScore(State state)
   {
 	Board board = state.board;
 	Side side = state.mySide;
 	boolean myTurn = state.isMyTurn;
 	
-    double score = 0;    
+    int score = 0;    
     int mySeeds = board.getSeedsInStore(side);
     int opponentSeeds = board.getSeedsInStore(side.opposite());
     
@@ -34,8 +34,9 @@ public class Heuristic
         }
         
         
-        // The magic happens right here
-        score = (1.0D / maxSeeds * (maxSeeds - minSeeds) + 1) * maxSeeds;
+        // The magic happens right here.
+        // 
+        score = 2 * maxSeeds - minSeeds;
 
         // Reverse score
         if (opponentSeeds > mySeeds)
@@ -78,13 +79,8 @@ public class Heuristic
        
     
     
-    // HEURISTIC 3 --- we might need to investigate this
-    // In the first few states of the game,
-    // we consider seeds on the opponent board as being advantageous to us
-    // because there is a high chance that they will lead to one of the above 
-    // two heuristics taking place.
-    
-    // This is a bit dodgy, and I don't understand why it's added with a factor of 1/2
+    // HEURISTIC 3 --- Maximize ratio between seeds on our board compared to seeds on opponent board
+    // factor of 1/2 again
     int seedsOnMyBoard = 0;
     for (int i = 1; i <= board.getNoOfHoles(); i++)
     	seedsOnMyBoard += board.getSeeds(side, i);
@@ -93,7 +89,7 @@ public class Heuristic
     for (int i = 1; i <= board.getNoOfHoles(); i++)
     	seedsOnOpponentBoard += board.getSeeds(side.opposite(), i);
       
-    int seedDifference = seedsOnOpponentBoard - seedsOnMyBoard;
+    int seedDifference =  seedsOnMyBoard - seedsOnOpponentBoard;
     
     score += seedDifference / 2;
     ///////////////////////////////////////////////////////////////////////
