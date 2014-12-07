@@ -6,9 +6,11 @@ import java.util.ArrayList;
 public class AlphaBeta {
 
     public static double max(int depth, State state, double alpha, double beta) {
-        if (depth == 0 || state.isEndState()) {
-            // System.err.println("Base case | Depth: " + depth + "Score: " + state.evaluate());
-            return state.evaluate();
+        if (depth == 0) {
+            return state.evaluate(true);
+        }
+        if (state.isEndState()) {
+            return state.evaluateEndState(true);
         }
 
         ArrayList<State> childStates = state.getChildStates();
@@ -31,16 +33,17 @@ public class AlphaBeta {
     }
 
     public static double min (int depth, State state, double alpha, double beta) {
-        if (depth == 0 || state.isEndState()) {
-            // System.err.println("Base case | Depth: " + depth + "Score: " + state.evaluate());
-            return state.evaluate();
+        if (depth == 0) {
+            return state.evaluate(false);
+        }
+        if (state.isEndState()) {
+            return state.evaluateEndState(false);
         }
 
         ArrayList<State> childStates = state.getChildStates();
         double currentValue;
 
         for (State childState : childStates) {
-            // System.err.println("State: \n");
             if (state.mySide == childState.mySide)
                 currentValue = min(depth - 1, childState, alpha, beta);
             else

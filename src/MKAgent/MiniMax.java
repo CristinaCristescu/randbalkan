@@ -5,10 +5,8 @@ import java.io.IOException;
 
 public class MiniMax {
 
-    public static PrintWriter writer;
 
     public static double max(int depth, State state) {
-        System.err.println("Depth: " + depth);
         if (depth == 0 || state.isEndState())
             return state.evaluate();
 
@@ -48,8 +46,7 @@ public class MiniMax {
     }
 
     // Do the first iteration of minimax for player MAX (us)
-    public static Move getBestMove(int depth, State state) throws IOException{
-        writer = new PrintWriter("asd.txt", "UTF-8");
+    public static Move getBestMove(int depth, State state) {
         ArrayList<State> childStates = state.getChildStates();
         double bestValue = Double.NEGATIVE_INFINITY, currentValue;
 
@@ -66,7 +63,6 @@ public class MiniMax {
                 bestState = childState;
             }
         }
-        writer.close();
 
         // TODO: Remove this if once debugging is over
         if (bestState != null)

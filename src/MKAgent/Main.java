@@ -88,17 +88,18 @@ public class Main
                             side = (first) ? Side.SOUTH : Side.NORTH;
                             if(first)
                             {
-                                Move move = AlphaBeta.getBestMove(ai_depth, new State(true, globalBoard, side, null));
+                                Move move = AlphaBeta.getBestMove(ai_depth, new State(globalBoard, side, null));
                                 sendMsg(Protocol.createMoveMsg(move.getHole()));
                             }
                             else
                                 initialBoard = globalBoard.clone();
                             break;
                         case STATE: System.err.println("A state.");
+                            System.err.println("my side is " + side);
                             Protocol.MoveTurn r = Protocol.interpretStateMsg (s, globalBoard);
                             if (!first && isFirstMove) {
                                 isFirstMove = false;
-                                Move bestFirstMove = AlphaBeta.getBestMove(ai_depth, new State(true, initialBoard, Side.SOUTH, null));
+                                Move bestFirstMove = AlphaBeta.getBestMove(ai_depth, new State(initialBoard, Side.SOUTH, null));
                                 if (bestFirstMove.getHole() == r.move) {
                                     sendMsg(Protocol.createSwapMsg());
                                     side = side.opposite();
@@ -112,7 +113,7 @@ public class Main
                                 side = side.opposite();
                             }
                             if (r.again) {
-                                Move move = AlphaBeta.getBestMove(ai_depth, new State(true, globalBoard, side, null));
+                                Move move = AlphaBeta.getBestMove(ai_depth, new State(globalBoard, side, null));
                                 sendMsg(Protocol.createMoveMsg(move.getHole()));
                             }
                             if (!r.end) System.err.println("Is it our turn again? " + r.again);
