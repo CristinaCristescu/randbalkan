@@ -6,9 +6,15 @@ import java.util.ArrayList;
 public class AlphaBeta {
 
     public static double max(int depth, State state, double alpha, double beta) {
-        if (depth == 0 || state.isEndState()) {
-            // System.err.println("Base case | Depth: " + depth + "Score: " + state.evaluate());
+        // if (depth == 0 || state.isEndState()) {
+        //     // System.err.println("Base case | Depth: " + depth + "Score: " + state.evaluate());
+        //     return state.evaluate();
+        // }
+        if (depth == 0) {
             return state.evaluate();
+        }
+        if (state.isEndState()) {
+            return state.evaluateEndState();
         }
 
         ArrayList<State> childStates = state.getChildStates();
@@ -31,9 +37,15 @@ public class AlphaBeta {
     }
 
     public static double min (int depth, State state, double alpha, double beta) {
-        if (depth == 0 || state.isEndState()) {
-            // System.err.println("Base case | Depth: " + depth + "Score: " + state.evaluate());
+        // if (depth == 0 || state.isEndState()) {
+        //     // System.err.println("Base case | Depth: " + depth + "Score: " + state.evaluate());
+        //     return state.evaluate();
+        // }
+        if (depth == 0) {
             return state.evaluate();
+        }
+        if (state.isEndState()) {
+            return state.evaluateEndState();
         }
 
         ArrayList<State> childStates = state.getChildStates();
@@ -68,8 +80,14 @@ public class AlphaBeta {
         if (childStates.size() == 1)
             return childStates.get(0).move;
 
+        if (state.isMyTurn != true)
+            System.err.println("WTF");
+
         for (State childState : childStates) {
-            currentValue = min(depth - 1, childState, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            if (state.mySide == childState.mySide)
+                currentValue = max(depth, childState, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+            else
+                currentValue = min(depth, childState, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
             if (currentValue > bestValue) {
                 bestValue = currentValue;
                 bestState = childState;

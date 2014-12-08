@@ -8,7 +8,6 @@ public class MiniMax {
     public static PrintWriter writer;
 
     public static double max(int depth, State state) {
-        System.err.println("Depth: " + depth);
         if (depth == 0 || state.isEndState())
             return state.evaluate();
 
@@ -28,7 +27,6 @@ public class MiniMax {
     }
 
     public static double min (int depth, State state) {
-        System.err.println("Depth: " + depth);
         if (depth == 0 || state.isEndState())
             return state.evaluate();
 
@@ -60,7 +58,10 @@ public class MiniMax {
             return childStates.get(0).move;
 
         for (State childState : childStates) {
-            currentValue = min(depth - 1, childState);
+            if (state.mySide == childState.mySide)
+                currentValue = max(depth, childState);
+            else
+                currentValue = min(depth, childState);
             if (currentValue > bestValue) {
                 bestValue = currentValue;
                 bestState = childState;

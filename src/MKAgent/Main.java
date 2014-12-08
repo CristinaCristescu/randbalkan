@@ -17,7 +17,7 @@ public class Main
 {
     private static int noHoles = 7;
     private static int noSeeds = 7;
-    private static int ai_depth = 12;
+    private static int ai_depth = 9;
     private static boolean first;
     private static Side side;
     private static Board globalBoard = new Board(noHoles, noSeeds);
@@ -99,8 +99,13 @@ public class Main
                                 side = side.opposite();
                             }
                             if (r.again) {
-                                Move move = AlphaBeta.getBestMove(ai_depth, new State(true, globalBoard, side, null));
-                                sendMsg(Protocol.createMoveMsg(move.getHole()));
+                                Move move1 = AlphaBeta.getBestMove(ai_depth, new State(true, globalBoard, side, null));
+                                // Move move2 = MiniMax.getBestMove(ai_depth, new State(true, globalBoard, side, null));
+                                Move move2 = move1;
+                                if (move1.getHole() == move2.getHole())
+                                    sendMsg(Protocol.createMoveMsg(move2.getHole()));
+                                else
+                                    System.out.println("Wtf");
                             }
                             if (!r.end) System.err.println("Is it our turn again? " + r.again);
                             System.err.print("The board:\n" + globalBoard);
