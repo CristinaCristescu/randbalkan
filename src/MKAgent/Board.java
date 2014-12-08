@@ -1,5 +1,6 @@
 package MKAgent;
 import java.util.Observable;
+import java.util.Random;
 
 /**
  * Representation of the Kalah board.<BR><BR>
@@ -282,5 +283,34 @@ public class Board extends Observable implements Cloneable
 
 		return boardString.toString();
 	}
+
+    @Override
+    public boolean equals(Object obj) {
+        if(this == obj)
+            return true;
+        
+        if(this.holes == obj.holes)
+        {
+            for (int i=1; i <= holes; i++)
+            {
+                if(this.board[NORTH_ROW][i] != obj.board[NORTH_ROW][i] || this.board[SOUTH_ROW][i] != obj.board[SOUTH_ROW][i])
+                    return false;
+            }
+        }
+        return true;
+    }
+
+
+
+
+    @Override
+    public int hashCode() {
+        int hash = 0;
+        for (int i=0; i < 2 * holes + 2; i++)
+        {
+            hash = hash XOR  z_table[i][board[(holeNo <= 7) ? 0 : 1][i%8]]; // z_table is a GLOBAL variable
+        }
+       return hash;
+    }
 }
 
