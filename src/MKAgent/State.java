@@ -30,6 +30,7 @@ public class State {
         //     // System.err.println("My Side: " + (mySide.opposite() == Side.NORTH ? "North" : "South"));
         //     return board.getSeedsInStore(mySide.opposite()) - board.getSeedsInStore(mySide);
         // }
+
         double score = 0;
         double myStoreSeeds = board.getSeedsInStore(mySide);
         double oppStoreSeeds = board.getSeedsInStore(mySide.opposite());

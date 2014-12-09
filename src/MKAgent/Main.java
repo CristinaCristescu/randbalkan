@@ -69,6 +69,10 @@ public class Main
         FileOutputStream fos = new FileOutputStream(file);
         PrintStream ps = new PrintStream(fos);
         System.setErr(ps);
+
+        AlphaBeta.init_zobrist();
+        AlphaBeta.create_TT();
+
         try {
             String s;
             while (true)

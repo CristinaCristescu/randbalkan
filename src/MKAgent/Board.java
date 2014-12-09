@@ -289,11 +289,11 @@ public class Board extends Observable implements Cloneable
         if(this == obj)
             return true;
         
-        if(this.holes == obj.holes)
+        if(this.holes == ((Board)obj).holes)
         {
             for (int i=1; i <= holes; i++)
             {
-                if(this.board[NORTH_ROW][i] != obj.board[NORTH_ROW][i] || this.board[SOUTH_ROW][i] != obj.board[SOUTH_ROW][i])
+                if(this.board[NORTH_ROW][i] != ((Board)obj).board[NORTH_ROW][i] || this.board[SOUTH_ROW][i] != ((Board)obj).board[SOUTH_ROW][i])
                     return false;
             }
         }
@@ -302,13 +302,17 @@ public class Board extends Observable implements Cloneable
 
 
 
-
     @Override
     public int hashCode() {
         int hash = 0;
-        for (int i=0; i < 2 * holes + 2; i++)
+
+        for (int i=0; i <= holes; i++)
         {
-            hash = hash XOR  z_table[i][board[(holeNo <= 7) ? 0 : 1][i%8]]; // z_table is a GLOBAL variable
+            for(int seed = 0; seed <= 85; seed++)
+            {
+                hash = hash ^ AlphaBeta.z_table[NORTH_ROW][i][seed];
+                hash = hash ^ AlphaBeta.z_table[SOUTH_ROW][i][seed];
+            }      
         }
        return hash;
     }
