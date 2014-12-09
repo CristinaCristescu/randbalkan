@@ -7,9 +7,14 @@ public class MiniMax {
 
     public static PrintWriter writer;
 
-    public static double max(int depth, State state) {
-        if (depth == 0 || state.isEndState())
+    public static double max(int depth, State state) throws Exception{
+        if (depth == 0) {
             return state.evaluate();
+        }
+        if (state.isEndState()) {
+            return state.evaluateEndState();
+        }
+
 
         ArrayList<State> childStates = state.getChildStates();
         double bestValue = Double.NEGATIVE_INFINITY, currentValue;
@@ -26,9 +31,14 @@ public class MiniMax {
         return bestValue;
     }
 
-    public static double min (int depth, State state) {
-        if (depth == 0 || state.isEndState())
+    public static double min (int depth, State state) throws Exception {
+        if (depth == 0) {
             return state.evaluate();
+        }
+        if (state.isEndState()) {
+            return state.evaluateEndState();
+        }
+
 
         ArrayList<State> childStates = state.getChildStates();
         double bestValue = Double.POSITIVE_INFINITY, currentValue;
@@ -46,7 +56,7 @@ public class MiniMax {
     }
 
     // Do the first iteration of minimax for player MAX (us)
-    public static Move getBestMove(int depth, State state) throws IOException{
+    public static Move getBestMove(int depth, State state) throws Exception {
         writer = new PrintWriter("asd.txt", "UTF-8");
         ArrayList<State> childStates = state.getChildStates();
         double bestValue = Double.NEGATIVE_INFINITY, currentValue;
