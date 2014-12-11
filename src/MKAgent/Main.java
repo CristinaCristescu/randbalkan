@@ -9,6 +9,9 @@ import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.FileNotFoundException;
 
+import java.util.Random;
+import java.util.Hashtable;
+
 /**
  * The main application class. It also provides methods for communication
  * with the game engine.
@@ -23,6 +26,9 @@ public class Main
 	private static Board globalBoard = new Board(noHoles, noSeeds);
 	private static boolean isFirstMove = true;
     private static Board initialBoard;
+
+    public static long[][][] zobrist_table;
+    public static Hashtable<Long, Double> table = new Hashtable<Long, Double>(1000,100);
 
 	private static Reader input = new BufferedReader(new InputStreamReader(System.in));
 
@@ -58,6 +64,22 @@ public class Main
 		return message.toString();
 	}
 
+	public static void init_zobrist()
+    {
+        //  fill a table of random numbers/bitstrings
+        Random random = new Random();
+        zobrist_table = new long[2][8][86]; // THIS HAS TO BE GLOBAL
+
+        for (int i=0; i <= 7; i++)
+        {
+            for(int seed = 0; seed <= 85; seed++)
+            {
+                zobrist_table[0][i][seed] = random.nextLong();
+                zobrist_table[1][i][seed] = random.nextLong();
+            }
+        } 
+    }
+
 
 	/**
 	 * The main method, invoked when the program is started.
@@ -71,6 +93,10 @@ public class Main
 		PrintStream ps = new PrintStream(fos);
 		System.setErr(ps);
 		String s;
+
+
+		// Init the zobrist keys
+		init_zobrist();
 
 		while (true)
 		{
@@ -108,8 +134,8 @@ public class Main
 								}
 							}
 
-							System.err.println("This was the move: " + r.move);
-							System.err.println("Is the game over? " + r.end);
+							//System.err.println("This was the move: " + r.move);
+							//System.err.println("Is the game over? " + r.end);
 
 							// If swapped
 							if (r.move == -1) {
@@ -120,7 +146,7 @@ public class Main
 								sendMsg(Protocol.createMoveMsg(move.getHole()));
 							}
 
-							if (!r.end) System.err.println("Is it our turn again? " + r.again);
+							if (!r.end) //System.err.println("Is it our turn again? " + r.again);
 							break;
 
 				case END: //System.err.println("An end. Bye bye!"); 

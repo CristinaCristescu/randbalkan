@@ -1,12 +1,25 @@
 package MKAgent;
 import java.util.ArrayList;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.io.FileNotFoundException;
 
 public class AlphaBeta {
 
     public static double max(int depth, State state, double alpha, double beta) throws Exception {
         if (depth == 0) {
-            return state.evaluate();
+            // Return value from TT if it was prev computed
+            if(Main.table.containsKey(state.hash))
+            {   
+                return Main.table.get(state.hash);                
+            }
+            // Else compute the value and store it into the TT
+            double evaluatedScore = state.evaluate();
+            Main.table.put(new Long(state.hash), new Double(evaluatedScore));
+            return evaluatedScore;
         }
+
         if (state.isEndState()) {
             return state.evaluateEndState();
         }
@@ -30,13 +43,23 @@ public class AlphaBeta {
 
     public static double min (int depth, State state, double alpha, double beta) throws Exception {
         if (depth == 0) {
-            return state.evaluate();
+            // Return value from TT if it was prev computed
+            if(Main.table.containsKey(state.hash))
+            {   
+                return Main.table.get(state.hash);                
+            }
+
+            double evaluatedScore = state.evaluate();
+            Main.table.put(new Long(state.hash), new Double(evaluatedScore));
+            return evaluatedScore;
         }
+
         if (state.isEndState()) {
             return state.evaluateEndState();
         }
 
-        ArrayList<State> childStates = state.getChildStates();
+        ArrayList<State> childStates = state.getChildStates();            
+
         double currentValue;
 
         for (State childState : childStates) {
@@ -55,6 +78,13 @@ public class AlphaBeta {
     }
 
     public static Move getBestMove(int depth, State state) throws Exception {
+        PrintStream console = System.err;
+        File file = new File("output2.txt");
+        FileOutputStream fos = new FileOutputStream(file);
+        PrintStream ps = new PrintStream(fos);
+        System.setErr(ps);
+
+
         ArrayList<State> childStates = state.getChildStates();
         double bestValue = Double.NEGATIVE_INFINITY, currentValue;
 

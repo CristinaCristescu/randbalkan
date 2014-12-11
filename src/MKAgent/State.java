@@ -10,20 +10,31 @@ public class State implements Comparable<State> {
 	public Move move;
 	public Board board;
 	public double score;
+	public long hash;
 
-	public State(boolean isMyTurn, Board board, Side side, Move move) {
+	public State(boolean isMyTurn, Board board, Side side, Move move){
 		this.board = board;
 		this.isMyTurn = isMyTurn;
 		this.mySide = side;
 		this.move = move;
 		this.score = 0.0;
+
+		this.hash = 0;
+		for (int i=0; i <= board.getNoOfHoles(); i++)
+		{
+			if(i == 0)
+				this.hash = this.hash ^ Main.zobrist_table[0][i][board.getSeedsInStore(side)];
+			else
+				this.hash = this.hash ^ Main.zobrist_table[0][i][board.getSeeds(side,i)];
+		}
 	}
 
 	public boolean isEndState() {
 		return Kalah.gameOver(this.board);
 	}
 
-	public double evaluate() {
+	public double evaluate() {	
+
 		double score = 0;
 		double myStoreSeeds = board.getSeedsInStore(mySide);
 		double oppStoreSeeds = board.getSeedsInStore(mySide.opposite());
@@ -31,46 +42,46 @@ public class State implements Comparable<State> {
 		// Heuristic 1
 		score = 2 * ((isMyTurn) ? myStoreSeeds - oppStoreSeeds : oppStoreSeeds - myStoreSeeds);
 
-		// Heuristic 2
+		/*// Heuristic 2
 		for (int hole = 1; hole <= board.getNoOfHoles(); hole++)
-		    if (board.getSeeds(mySide, hole) == 0 && isSeedable(mySide, hole))
-		        if (isMyTurn)
-		            score += board.getSeedsOp(mySide, hole) / 2.0;
-		        else
-		            score -= board.getSeedsOp(mySide, hole) / 2.0;
+			if (board.getSeeds(mySide, hole) == 0 && isSeedable(mySide, hole))
+				if (isMyTurn)
+					score += board.getSeedsOp(mySide, hole) / 2.0;
+				else
+					score -= board.getSeedsOp(mySide, hole) / 2.0;
 
 		// Heuristic 3
 		for (int hole = 1; hole <= board.getNoOfHoles(); hole++)
-		    if (board.getSeeds(mySide.opposite(), hole) == 0 && isSeedable(mySide.opposite(), hole))
-		        if (isMyTurn)
-		            score -= board.getSeedsOp(mySide.opposite(), hole) / 2.0;
-		        else
-		            score += board.getSeedsOp(mySide.opposite(), hole) / 2.0;
+			if (board.getSeeds(mySide.opposite(), hole) == 0 && isSeedable(mySide.opposite(), hole))
+				if (isMyTurn)
+					score -= board.getSeedsOp(mySide.opposite(), hole) / 2.0;
+				else
+					score += board.getSeedsOp(mySide.opposite(), hole) / 2.0;
 
 
-        //Heuristic 4
+		//Heuristic 4
 		if (myStoreSeeds + oppStoreSeeds >= 40) {
 
-		    int mySideSeeds = 0, oppSideSeeds = 0;
-		    for (int i = 1; i <= board.getNoOfHoles(); i++) {
-		        mySideSeeds += board.getSeeds(mySide, i);
-		        oppSideSeeds += board.getSeeds(mySide.opposite(), i);
-		    }
-		    score += ((isMyTurn) ? (mySideSeeds - oppSideSeeds) : (oppSideSeeds - mySideSeeds));
+			int mySideSeeds = 0, oppSideSeeds = 0;
+			for (int i = 1; i <= board.getNoOfHoles(); i++) {
+				mySideSeeds += board.getSeeds(mySide, i);
+				oppSideSeeds += board.getSeeds(mySide.opposite(), i);
+			}
+			score += ((isMyTurn) ? (mySideSeeds - oppSideSeeds) : (oppSideSeeds - mySideSeeds));
 		}
 
 		// Heuristic 5
 		for (int i = 1; i <= board.getNoOfHoles(); i++) {
-		    if (board.getNoOfHoles() - i + 1 == board.getSeeds(mySide, i))
-		        if (isMyTurn)
-		            score += 2;
-		        else
-		            score -= 2;
+			if (board.getNoOfHoles() - i + 1 == board.getSeeds(mySide, i))
+				if (isMyTurn)
+					score += 2;
+				else
+					score -= 2;
 		}
 
 		// Heuristic 6
 		score += leftMinusRight(board,mySide);
-		score -= leftMinusRight(board,mySide.opposite());
+		score -= leftMinusRight(board,mySide.opposite());*/
 
 		return score;
 	}
@@ -142,12 +153,12 @@ public class State implements Comparable<State> {
 	}
 
 	@Override
-    public int compareTo(State otherState) {
-        return (this.score < otherState.score ) ? 1: (this.score > otherState.score) ? -1 : 0 ;
-    }
+	public int compareTo(State otherState) {
+		return (this.score < otherState.score ) ? 1: (this.score > otherState.score) ? -1 : 0 ;
+	}
 
-    @Override
-    public String toString() {
-        return "" + score;
-    }
+	@Override
+	public String toString() {
+		return "" + score;
+	}
 }

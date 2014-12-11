@@ -282,5 +282,22 @@ public class Board extends Observable implements Cloneable
 
 		return boardString.toString();
 	}
+
+/*
+    @Override
+    public long hashCode() {
+        // set hash code to 0
+        long hash = 0;
+
+        for (int i=0; i <= holes; i++)
+        {
+            for(int seed = 0; seed <= 85; seed++)
+            {
+                hash = hash ^ Main.zobrist_table[NORTH_ROW][i][seed];
+                hash = hash ^ Main.zobrist_table[SOUTH_ROW][i][seed];
+            }      
+        }
+       return hash;
+    }*/
 }
 
