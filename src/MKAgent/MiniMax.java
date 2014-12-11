@@ -5,9 +5,9 @@ import java.io.IOException;
 
 public class MiniMax {
 
-    public static PrintWriter writer;
-
     public static double max(int depth, State state) throws Exception{
+        if (state.isMyTurn != true)
+            System.err.println("WTF");
         if (depth == 0) {
             return state.evaluate();
         }
@@ -16,7 +16,7 @@ public class MiniMax {
         }
 
 
-        ArrayList<State> childStates = state.getChildStates();
+        ArrayList<State> childStates = state.getChildStatesMinimax();
         double bestValue = Double.NEGATIVE_INFINITY, currentValue;
 
         for (State childState : childStates) {
@@ -32,6 +32,8 @@ public class MiniMax {
     }
 
     public static double min (int depth, State state) throws Exception {
+        if (state.isMyTurn != false)
+            System.err.println("WTF");
         if (depth == 0) {
             return state.evaluate();
         }
@@ -40,7 +42,7 @@ public class MiniMax {
         }
 
 
-        ArrayList<State> childStates = state.getChildStates();
+        ArrayList<State> childStates = state.getChildStatesMinimax();
         double bestValue = Double.POSITIVE_INFINITY, currentValue;
 
         for (State childState : childStates) {
@@ -55,37 +57,28 @@ public class MiniMax {
         return bestValue;
     }
 
-    // Do the first iteration of minimax for player MAX (us)
     public static Move getBestMove(int depth, State state) throws Exception {
-        writer = new PrintWriter("asd.txt", "UTF-8");
-        ArrayList<State> childStates = state.getChildStates();
+        ArrayList<State> childStates = state.getChildStatesMinimax();
         double bestValue = Double.NEGATIVE_INFINITY, currentValue;
 
         State bestState = null;
 
-        // In case there's only one possible move, return that
         if (childStates.size() == 1)
             return childStates.get(0).move;
 
         for (State childState : childStates) {
             if (state.mySide == childState.mySide)
-                currentValue = max(depth, childState);
+                currentValue = max(depth - 1, childState);
             else
-                currentValue = min(depth, childState);
+                currentValue = min(depth - 1, childState);
             if (currentValue > bestValue) {
                 bestValue = currentValue;
                 bestState = childState;
             }
         }
-        writer.close();
 
         // TODO: Remove this if once debugging is over
-        if (bestState != null)
-            return bestState.move;
-        else
-        {
-            System.err.println("Balkan algorithm tried to perform an illegal move.");
-            return null;
-        }
+        return bestState.move;
+
     }
 }
