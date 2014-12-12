@@ -9,7 +9,7 @@ public class State implements Comparable<State> {
     // This is the move that led to the state of board
     public Move move;
     public Board board;
-    public double score;
+    public int score;
     public String hash;
 
     public State(boolean isMyTurn, Board board, Side side, Move move) {
@@ -23,10 +23,10 @@ public class State implements Comparable<State> {
         return Kalah.gameOver(this.board);
     }
 
-    public double orderEvaluate() {
-        double score = 0;
-        double myStoreSeeds = board.getSeedsInStore(mySide);
-        double oppStoreSeeds = board.getSeedsInStore(mySide.opposite());
+    public int orderEvaluate() {
+        int score = 0;
+        int myStoreSeeds = board.getSeedsInStore(mySide);
+        int oppStoreSeeds = board.getSeedsInStore(mySide.opposite());
         score = 2 *((isMyTurn) ? myStoreSeeds - oppStoreSeeds : oppStoreSeeds - myStoreSeeds);
 
         // for (int hole = 1; hole <= 7; hole++)
@@ -60,10 +60,10 @@ public class State implements Comparable<State> {
         return score;
     }
 
-    public double evaluate() {
-        double score = 0;
-        double myStoreSeeds = board.getSeedsInStore(mySide);
-        double oppStoreSeeds = board.getSeedsInStore(mySide.opposite());
+    public int evaluate() {
+        int score = 0;
+        int myStoreSeeds = board.getSeedsInStore(mySide);
+        int oppStoreSeeds = board.getSeedsInStore(mySide.opposite());
 
         score = 2 *((isMyTurn) ? myStoreSeeds - oppStoreSeeds : oppStoreSeeds - myStoreSeeds);
 
@@ -211,13 +211,13 @@ public class State implements Comparable<State> {
         }
         return false;
     }
-    public double evaluateEndState() {
-        double myStoreSeeds = board.getSeedsInStore(mySide);
-        double oppStoreSeeds = board.getSeedsInStore(mySide.opposite());
+    public int evaluateEndState() {
+        int myStoreSeeds = board.getSeedsInStore(mySide);
+        int oppStoreSeeds = board.getSeedsInStore(mySide.opposite());
         if (isMyTurn)
-            return (myStoreSeeds > oppStoreSeeds) ? 1000 : -1000;
+            return (myStoreSeeds > oppStoreSeeds) ? 999 : -999;
         else
-            return (oppStoreSeeds > myStoreSeeds) ? 1000 : -1000;
+            return (oppStoreSeeds > myStoreSeeds) ? 999 : -999;
     }
 
     public static int leftMinusRight(Board board, Side side) {

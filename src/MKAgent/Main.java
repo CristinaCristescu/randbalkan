@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.PrintStream;
 import java.io.FileNotFoundException;
+import java.util.Random;
 
 /**
  * The main application class. It also provides methods for communication
@@ -18,12 +19,13 @@ public class Main
     private static int noHoles = 7;
     private static int noSeeds = 7;
     private static int ai_depth = 24;
-    private static int time = 80;
+    private static long time = 80;
     private static boolean isFirstMove = true;
     private static boolean first;
     private static Side side;
     private static Board globalBoard = new Board(noHoles, noSeeds);
     private static Board initialBoard;
+    private static Random random = new Random();
 
 
     private static Reader input = new BufferedReader(new InputStreamReader(System.in));
@@ -67,11 +69,11 @@ public class Main
      */
     public static void main(String[] args) throws Exception
     {
-        PrintStream console = System.err;
-        File file = new File("output.txt");
-        FileOutputStream fos = new FileOutputStream(file);
-        PrintStream ps = new PrintStream(fos);
-        System.setErr(ps);
+        // PrintStream console = System.err;
+        // File file = new File("output.txt");
+        // FileOutputStream fos = new FileOutputStream(file);
+        // PrintStream ps = new PrintStream(fos);
+        // System.setErr(ps);
         String s;
         while (true)
         {
@@ -91,7 +93,7 @@ public class Main
                         {
                             // Move move = AlphaBeta.getBestMoveID(ai_depth, new State(true, globalBoard, side, null));
                             // sendMsg(Protocol.createMoveMsg(move.getHole()));
-                            sendMsg(Protocol.createMoveMsg(1));
+                            sendMsg(Protocol.createMoveMsg(random.nextInt(7) + 1));
                         }
                         else
                             initialBoard = globalBoard.clone();
