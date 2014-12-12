@@ -10,7 +10,7 @@ public class AlphaBeta {
         isTimeOver = false;
         Move bestMove = null, currentMove = null;
         System.err.println("Move: ");
-        for (int i = 10; i <= depth; i++) {
+        for (int i = 13; i <= depth; i++) {
             currentMove = getBestMove(i, state);
             if (isTimeOver)
                 break;

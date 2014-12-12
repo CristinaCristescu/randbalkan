@@ -18,7 +18,7 @@ public class Main
     private static int noHoles = 7;
     private static int noSeeds = 7;
     private static int ai_depth = 24;
-    private static int time = 1200;
+    private static int time = 80;
     private static boolean isFirstMove = true;
     private static boolean first;
     private static Side side;
@@ -89,8 +89,9 @@ public class Main
                         side = (first) ? Side.SOUTH : Side.NORTH;
                         if(first)
                         {
-                            Move move = AlphaBeta.getBestMoveID(ai_depth, new State(true, globalBoard, side, null));
-                            sendMsg(Protocol.createMoveMsg(move.getHole()));
+                            // Move move = AlphaBeta.getBestMoveID(ai_depth, new State(true, globalBoard, side, null));
+                            // sendMsg(Protocol.createMoveMsg(move.getHole()));
+                            sendMsg(Protocol.createMoveMsg(1));
                         }
                         else
                             initialBoard = globalBoard.clone();

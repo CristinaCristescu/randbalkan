@@ -120,23 +120,24 @@ public class State implements Comparable<State> {
             }
         }
 
-        if (depth > 12) {
-            for (State state : states) {
-                if (isMyTurn) {
-                    if (mySide == state.mySide)
-                        state.score = AlphaBeta.max2(6, state, -1000, 1000);
-                    else
-                        state.score = AlphaBeta.min2(6, state, -1000, 1000);
+        // if (depth > 12) {
+        //     for (State state : states) {
+        //         if (isMyTurn) {
+        //             if (mySide == state.mySide)
+        //                 state.score = AlphaBeta.max2(6, state, -1000, 1000);
+        //             else
+        //                 state.score = AlphaBeta.min2(6, state, -1000, 1000);
 
-                }
-                else {
-                    if (mySide == state.mySide)
-                        state.score = AlphaBeta.min2(6, state, -1000, 1000);
-                    else
-                        state.score = AlphaBeta.max2(6, state, -1000, 1000);
-                }
-            }
-        } else if (depth > 6) {
+        //         }
+        //         else {
+        //             if (mySide == state.mySide)
+        //                 state.score = AlphaBeta.min2(6, state, -1000, 1000);
+        //             else
+        //                 state.score = AlphaBeta.max2(6, state, -1000, 1000);
+        //         }
+        //     }
+        // } else if (depth > 6) {
+        if (depth > 6) {
             for (State state : states) {
                 if (isMyTurn) {
                     if (mySide == state.mySide)
