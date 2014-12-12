@@ -3,8 +3,26 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class AlphaBeta {
+    public static boolean isTimeOver = false;
+    public static long startTime;
+    public static long duration;
+    public static Move getBestMoveID(int depth, State state) throws Exception {
+        isTimeOver = false;
+        Move bestMove = null, currentMove = null;
+        System.err.println("Move: ");
+        for (int i = 10; i <= depth; i++) {
+            currentMove = getBestMove(i, state);
+            if (isTimeOver)
+                break;
+            System.err.println("depth: " + i);
+            bestMove = currentMove;
+        }
+        return bestMove;
+    }
 
     public static double max(int depth, State state, double alpha, double beta) throws Exception {
+        if (isTimeOver || timeOver())
+            return -1;
         if (depth == 0) {
             return state.evaluate();
         }
@@ -12,7 +30,7 @@ public class AlphaBeta {
             return state.evaluateEndState();
         }
 
-        ArrayList<State> childStates = state.getChildStates((depth - 2) / 2, alpha, beta);;
+        ArrayList<State> childStates = state.getChildStates(depth);
         double currentValue;
 
         for (State childState : childStates) {
@@ -30,6 +48,8 @@ public class AlphaBeta {
     }
 
     public static double min(int depth, State state, double alpha, double beta) throws Exception {
+        if (isTimeOver || timeOver())
+            return -1;
         if (depth == 0) {
             return state.evaluate();
         }
@@ -37,7 +57,7 @@ public class AlphaBeta {
             return state.evaluateEndState();
         }
 
-        ArrayList<State> childStates = state.getChildStates((depth - 2) / 2, alpha, beta);
+        ArrayList<State> childStates = state.getChildStates(depth);
         double currentValue;
 
         for (State childState : childStates) {
@@ -56,6 +76,8 @@ public class AlphaBeta {
     }
 
     public static double max2(int depth, State state, double alpha, double beta) throws Exception {
+        if (isTimeOver || timeOver())
+            return -1;
         if (depth == 0) {
             return state.evaluate();
         }
@@ -81,6 +103,8 @@ public class AlphaBeta {
     }
 
     public static double min2(int depth, State state, double alpha, double beta) throws Exception {
+        if (isTimeOver || timeOver())
+            return -1;
         if (depth == 0) {
             return state.evaluate();
         }
@@ -108,7 +132,7 @@ public class AlphaBeta {
 
 
     public static Move getBestMove(int depth, State state) throws Exception {
-        ArrayList<State> childStates = state.getChildStates((depth - 2) / 2, Double.NEGATIVE_INFINITY, Double.POSITIVE_INFINITY);
+        ArrayList<State> childStates = state.getChildStates(depth);
         double bestValue = Double.NEGATIVE_INFINITY, currentValue;
 
         State bestState = null;
@@ -127,6 +151,16 @@ public class AlphaBeta {
                 bestState = childState;
             }
         }
-        return bestState.move;
+        if (bestState != null)
+            return bestState.move;
+        else return null;
+    }
+
+    public static boolean timeOver() {
+        long currentTime = System.currentTimeMillis();
+        if ((currentTime - startTime) < duration)
+            return false;
+        isTimeOver = true;
+        return true;
     }
 }

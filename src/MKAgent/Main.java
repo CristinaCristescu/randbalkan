@@ -17,7 +17,8 @@ public class Main
 {
     private static int noHoles = 7;
     private static int noSeeds = 7;
-    private static int ai_depth = 12;
+    private static int ai_depth = 24;
+    private static int time = 1200;
     private static boolean isFirstMove = true;
     private static boolean first;
     private static Side side;
@@ -76,48 +77,51 @@ public class Main
         {
             System.err.println();
             s = recvMsg();
-            System.err.print("Received: " + s);
+            // System.err.print("Received: " + s);
                 MsgType mt = Protocol.getMessageType(s);
                 switch (mt)
                 {
-                    case START: System.err.println("A start.");
+                    case START: // System.err.println("A start.");
+                        AlphaBeta.startTime = System.currentTimeMillis();
+                        AlphaBeta.duration = time * 1000;
                         first = Protocol.interpretStartMsg(s);
-                        System.err.println("Starting player? " + first);
+                        // System.err.println("Starting player? " + first);
                         side = (first) ? Side.SOUTH : Side.NORTH;
                         if(first)
                         {
-                            // Move move = AlphaBeta.getBestMove(ai_depth, new State(globalBoard, side, null));
-                            // sendMsg(Protocol.createMoveMsg(move.getHole()));
-                            sendMsg(Protocol.createMoveMsg(1));
+                            Move move = AlphaBeta.getBestMoveID(ai_depth, new State(true, globalBoard, side, null));
+                            sendMsg(Protocol.createMoveMsg(move.getHole()));
                         }
                         else
                             initialBoard = globalBoard.clone();
                         break;
-                    case STATE: System.err.println("A state.");
-                        System.err.println("my side is " + side);
+                    case STATE: // System.err.println("A state.");
+                        // System.err.println("my side is " + side);
+                        AlphaBeta.startTime = System.currentTimeMillis();
+                        AlphaBeta.duration = time * 1000;
                         Protocol.MoveTurn r = Protocol.interpretStateMsg (s, globalBoard);
+                        // Always swap because we don't want to waste time checking this early in tree
                         if (isFirstMove && !first) {
                             isFirstMove = false;
-                            if (r.move == 1) {
-                                sendMsg(Protocol.createSwapMsg());
-                                side = side.opposite();
-                                break;
-                            }
+                            sendMsg(Protocol.createSwapMsg());
+                            side = side.opposite();
+                            break;
                         }
-                        System.err.println("This was the move: " + r.move);
-                        System.err.println("Is the game over? " + r.end);
+                        // System.err.println("This was the move: " + r.move);
+                        // System.err.println("Is the game over? " + r.end);
                         // If swapped
                         if (r.move == -1) {
                             side = side.opposite();
                         }
                         if (r.again) {
-                            Move move = AlphaBeta.getBestMove(ai_depth, new State(true, globalBoard, side, null));
+                            Move move = AlphaBeta.getBestMoveID(ai_depth, new State(true, globalBoard, side, null));
                             sendMsg(Protocol.createMoveMsg(move.getHole()));
                         }
-                        if (!r.end) System.err.println("Is it our turn again? " + r.again);
-                        System.err.print("The board:\n" + globalBoard);
+                        if (!r.end) // System.err.println("Is it our turn again? " + r.again);
+                        // System.err.print("The board:\n" + globalBoard);
                         break;
-                    case END: System.err.println("An end. Bye bye!"); return;
+                    case END: //System.err.println("An end. Bye bye!"); 
+                            return;
                 }
         }
     }

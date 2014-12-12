@@ -19,14 +19,6 @@ public class State implements Comparable<State> {
         this.move = move;
     }
 
-    public State(boolean isMyTurn, Board board, Side side, Move move, String hash) {
-        this.board = board;
-        this.isMyTurn = isMyTurn;
-        this.mySide = side;
-        this.move = move;
-        this.hash = hash;
-    }
-
     public boolean isEndState() {
         return Kalah.gameOver(this.board);
     }
@@ -90,14 +82,14 @@ public class State implements Comparable<State> {
         //             score += board.getSeedsOp(mySide.opposite(), hole) / 2.0;
 
 
-        // if (myStoreSeeds + oppStoreSeeds >= 40) {
-        //     int mySideSeeds = 0, oppSideSeeds = 0;
-        //     for (int i = 1; i <= 7; i++) {
-        //         mySideSeeds += board.getSeeds(mySide, i);
-        //         oppSideSeeds += board.getSeeds(mySide.opposite(), i);
-        //     }
-        //     score += ((isMyTurn) ? (mySideSeeds - oppSideSeeds) : (oppSideSeeds - mySideSeeds));
-        // }
+        if (myStoreSeeds + oppStoreSeeds >= 80) {
+            int mySideSeeds = 0, oppSideSeeds = 0;
+            for (int i = 1; i <= 7; i++) {
+                mySideSeeds += board.getSeeds(mySide, i);
+                oppSideSeeds += board.getSeeds(mySide.opposite(), i);
+            }
+            score += ((isMyTurn) ? (mySideSeeds - oppSideSeeds) : (oppSideSeeds - mySideSeeds));
+        }
 
         // for (int i = 1; i <= 7; i++) {
         //     if (board.getNoOfHoles() - i + 1 == board.getSeeds(mySide, i))
@@ -113,7 +105,7 @@ public class State implements Comparable<State> {
         return score;
     }
 
-    public ArrayList<State> getChildStates(int depth, double alpha, double beta) throws Exception {
+    public ArrayList<State> getChildStates(int depth) throws Exception {
         ArrayList<State> states = new ArrayList<State>(7);
 
         for (int hole = 1; hole <= board.getNoOfHoles(); hole++) {
@@ -128,26 +120,42 @@ public class State implements Comparable<State> {
             }
         }
 
-        // if (depth > 10) {
-        //      for (State state : states) {
-        //         if (isMyTurn) {
-        //             if (mySide == state.mySide)
-        //                 state.score = AlphaBeta.max2(depth, state, -1000, 1000);
-        //             else
-        //                 state.score = AlphaBeta.min2(depth, state, -1000, 1000);
+        if (depth > 12) {
+            for (State state : states) {
+                if (isMyTurn) {
+                    if (mySide == state.mySide)
+                        state.score = AlphaBeta.max2(6, state, -1000, 1000);
+                    else
+                        state.score = AlphaBeta.min2(6, state, -1000, 1000);
 
-        //         }
-        //         else {
-        //             if (mySide == state.mySide)
-        //                 state.score = AlphaBeta.min2(depth, state, -1000, 1000);
-        //             else
-        //                 state.score = AlphaBeta.max2(depth, state, -1000, 1000);
-        //         }
-        //     }
-        // } else {
+                }
+                else {
+                    if (mySide == state.mySide)
+                        state.score = AlphaBeta.min2(6, state, -1000, 1000);
+                    else
+                        state.score = AlphaBeta.max2(6, state, -1000, 1000);
+                }
+            }
+        } else if (depth > 6) {
+            for (State state : states) {
+                if (isMyTurn) {
+                    if (mySide == state.mySide)
+                        state.score = AlphaBeta.max2(3, state, -1000, 1000);
+                    else
+                        state.score = AlphaBeta.min2(3, state, -1000, 1000);
+
+                }
+                else {
+                    if (mySide == state.mySide)
+                        state.score = AlphaBeta.min2(3, state, -1000, 1000);
+                    else
+                        state.score = AlphaBeta.max2(3, state, -1000, 1000);
+                }
+            }
+        } else {
             for (State state : states) {
                 state.score = state.orderEvaluate();
-            // }
+            }
         }
         Collections.sort(states);
 
