@@ -1,5 +1,7 @@
 package MKAgent;
 import java.util.Observable;
+import java.util.BitSet;
+import java.util.Random;
 
 /**
  * Representation of the Kalah board.<BR><BR>
@@ -54,7 +56,7 @@ public class Board extends Observable implements Cloneable
 
     /**
      * Creates a new board.
-     * 
+     *
      * @param holes The number of holes per side (must be >= 1).
      * @param seeds The initial number of seeds per hole (must be >= 0). The
      *        stores are empty initially.
@@ -77,7 +79,7 @@ public class Board extends Observable implements Cloneable
     		board[SOUTH_ROW][i] = seeds;
     	}
     }
-    
+
 	/**
      * Creates a new board as the copy of a given one. Both copies can then be
      * altered independently.
@@ -100,7 +102,7 @@ public class Board extends Observable implements Cloneable
     /**
      * Creates a copy of the current board. Both copies can then be altered
      * independently.
-     *  
+     *
      * @see java.lang.Object#clone()
      * @see #Board(Board)
      */
@@ -186,7 +188,7 @@ public class Board extends Observable implements Cloneable
 
     	return board[1-indexOfSide(side)][holes+1-hole];
     }
- 
+
     /**
      * Sets the number of seeds in a hole opposite to a given one.
      * @param side The side the given hole is located on.

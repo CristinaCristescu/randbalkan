@@ -4,13 +4,10 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Random;
-import java.io.PrintWriter;
 import java.io.File;
-import java.io.FileWriter;
-import java.lang.Integer;
-import java.lang.Double;
-import java.lang.Math;
+import java.io.FileOutputStream;
+import java.io.PrintStream;
+import java.io.FileNotFoundException;
 
 /**
  * The main application class. It also provides methods for communication
@@ -18,22 +15,17 @@ import java.lang.Math;
  */
 public class Main
 {
-
-
-    private static PrintWriter writer = null;
     private static int noHoles = 7;
     private static int noSeeds = 7;
-    private static int ai_depth = 8;
+    private static int ai_depth = 24;
+    private static int time = 1200;
+    private static boolean isFirstMove = true;
     private static boolean first;
     private static Side side;
-    private static Random random = new Random();
     private static Board globalBoard = new Board(noHoles, noSeeds);
-    private static int bestValue;
-    private static int chosenHole;
+    private static Board initialBoard;
 
-    /**
-     * Input from the game engine.
-     */
+
     private static Reader input = new BufferedReader(new InputStreamReader(System.in));
 
     /**
@@ -42,8 +34,8 @@ public class Main
      */
     public static void sendMsg (String msg)
     {
-    	System.out.print(msg);
-    	System.out.flush();
+        System.out.print(msg);
+        System.out.flush();
     }
 
     /**
@@ -54,176 +46,83 @@ public class Main
      */
     public static String recvMsg() throws IOException
     {
-    	StringBuilder message = new StringBuilder();
-    	int newCharacter;
+        StringBuilder message = new StringBuilder();
+        int newCharacter;
 
-    	do
-    	{
-    		newCharacter = input.read();
-    		if (newCharacter == -1)
-    			throw new EOFException("Input ended unexpectedly.");
-    		message.append((char)newCharacter);
-    	} while((char)newCharacter != '\n');
+        do
+        {
+            newCharacter = input.read();
+            if (newCharacter == -1)
+                throw new EOFException("Input ended unexpectedly.");
+            message.append((char)newCharacter);
+        } while((char)newCharacter != '\n');
 
-		return message.toString();
+        return message.toString();
     }
 
-    public static int evalFunction(Board aBoard)
+
+    /**
+     * The main method, invoked when the program is started.
+     * @param args Command line arguments.
+     */
+    public static void main(String[] args) throws Exception
     {
-        return aBoard.getSeedsInStore((first ? Side.SOUTH : Side.NORTH)) - aBoard.getSeedsInStore((first ? Side.NORTH : Side.SOUTH));
-    }
-
-// Basic minimax algorithm - no alpha-beta pruning or heuristics
-    public static int minimax(int depth, boolean isPlayer1, Board aBoard)
-    {
-        try{
-//      if depth is 0 return evaluation function
-        if(depth == 0)
-            return evalFunction(aBoard);
-//      if it's Player 1's turn
-        if (isPlayer1)
+        PrintStream console = System.err;
+        File file = new File("output.txt");
+        FileOutputStream fos = new FileOutputStream(file);
+        PrintStream ps = new PrintStream(fos);
+        System.setErr(ps);
+        String s;
+        while (true)
         {
-            writer.println("MAX: " + depth + " \n" + aBoard);
-            bestValue = Integer.MIN_VALUE;
-            // evaluate all holes
-            for(int hole = 1; hole <= aBoard.getNoOfHoles(); hole++)
-            {
-                //  duplicate board
-
-                Move move = new Move((first ? Side.SOUTH : Side.NORTH),hole);
-
-
-                //  if move is legal
-                if(Kalah.isLegalMove(aBoard, move))
+            System.err.println();
+            s = recvMsg();
+            // System.err.print("Received: " + s);
+                MsgType mt = Protocol.getMessageType(s);
+                switch (mt)
                 {
-                    writer.println("CURRENT BOARD" + aBoard);
-                    Board bBoard = aBoard.clone();
-                    //  simulate move
-                    Kalah.makeMove(bBoard, move);
-                    writer.println("CURRENT CHANGED BOARD" + bBoard);
-
-                    int score = minimax(depth-1, false, bBoard);
-                    writer.println("CURRENT (SHOULD NOT BE CHANGED)" + aBoard);
-                    //  record best value and corresponding hole if it beats result so far
-                    if(bestValue <= score)
-                    {
-                        bestValue = score;
-                        if (depth == ai_depth)
-                            chosenHole = hole;
-                        writer.println("chosenhole changed?" + chosenHole);
-                    }
-                }
-            }
-        }
-        else
-        {
-
-            writer.println("MIN: " + depth + " \n" + aBoard);
-            bestValue = Integer.MAX_VALUE;
-            // evaluate all holes
-            for(int hole = 1; hole <= aBoard.getNoOfHoles(); hole++)
-            {
-                //  duplicate board
-
-                Move move = new Move((first ? Side.SOUTH : Side.NORTH),hole);
-                //  if move is legal
-                if(Kalah.isLegalMove(aBoard, move))
-                {
-                    writer.println("CURRENT BOARD" + aBoard);
-                    Board bBoard = aBoard.clone();
-                    //  simulate move
-                    Kalah.makeMove(bBoard, move);
-                    writer.println("CURRENT CHANGED BOARD" + bBoard);
-                    int score = minimax(depth-1, true, bBoard);
-                    writer.println("CURRENT (SHOULD NOT BE CHANGED)" + aBoard);
-                    //  record best value and corresponding hole if it beats result so far
-                    if(bestValue >= score)
-                    {
-                        bestValue = score;
-                        if (depth == ai_depth)
-                            chosenHole = hole;
-                        writer.println("chosenhole changed?" + chosenHole);
-                    }
-                }
-            }
-        }
-        }
-        catch (Exception e) {
-           writer.println("FUCK U JAVA");
-        }
-
-        return bestValue;
-    }
-
-	/**
-	 * The main method, invoked when the program is started.
-	 * @param args Command line arguments.
-	 */
-	public static void main(String[] args)
-	{
-        try
-        {
-            writer = new PrintWriter(new FileWriter("afile", true));
-            Board duplicateB;
-            String s;
-            while (true)
-            {
-                System.err.println();
-                s = recvMsg();
-                System.err.print("Received: " + s);
-                try {
-                    MsgType mt = Protocol.getMessageType(s);
-                    switch (mt)
-                    {
-                        case START: System.err.println("A start.");
-                            first = Protocol.interpretStartMsg(s);
-                            System.err.println("Starting player? " + first);
-                            side = (first) ? Side.SOUTH : Side.NORTH;
-                            if(first)
-                            {
-                                try {
-                                    duplicateB = globalBoard.clone();
-                                    int bestEvalScore = minimax(ai_depth, true, duplicateB);
-                                    writer.println("INITIAL: player " + first + " hole - " + chosenHole + " and eval " + bestEvalScore);
-                                    sendMsg(Protocol.createMoveMsg(chosenHole));
-                                } catch (CloneNotSupportedException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
+                    case START: // System.err.println("A start.");
+                        AlphaBeta.startTime = System.currentTimeMillis();
+                        AlphaBeta.duration = time * 1000;
+                        first = Protocol.interpretStartMsg(s);
+                        // System.err.println("Starting player? " + first);
+                        side = (first) ? Side.SOUTH : Side.NORTH;
+                        if(first)
+                        {
+                            Move move = AlphaBeta.getBestMoveID(ai_depth, new State(true, globalBoard, side, null));
+                            sendMsg(Protocol.createMoveMsg(move.getHole()));
+                        }
+                        else
+                            initialBoard = globalBoard.clone();
+                        break;
+                    case STATE: // System.err.println("A state.");
+                        // System.err.println("my side is " + side);
+                        AlphaBeta.startTime = System.currentTimeMillis();
+                        AlphaBeta.duration = time * 1000;
+                        Protocol.MoveTurn r = Protocol.interpretStateMsg (s, globalBoard);
+                        // Always swap because we don't want to waste time checking this early in tree
+                        if (isFirstMove && !first) {
+                            isFirstMove = false;
+                            sendMsg(Protocol.createSwapMsg());
+                            side = side.opposite();
                             break;
-                        case STATE: System.err.println("A state.");
-                            Protocol.MoveTurn r = Protocol.interpretStateMsg (s, globalBoard);
-                            System.err.println("This was the move: " + r.move);
-                            System.err.println("Is the game over? " + r.end);
-                            if (r.again) {
-                                try {
-                                    duplicateB = globalBoard.clone();
-                                    writer.println("DUPLICATED: \n" + duplicateB);
-                                    int bestEvalScore = minimax(ai_depth, true, duplicateB);
-                                    writer.println("MIDDLE: player " + first + " hole - " + chosenHole + " and eval " + bestEvalScore);
-                                    sendMsg(Protocol.createMoveMsg(chosenHole));
-                                } catch (CloneNotSupportedException e) {
-                                    e.printStackTrace();
-                                }
-
-                            }
-                            if (!r.end) System.err.println("Is it our turn again? " + r.again);
-                            System.err.print("The board:\n" + globalBoard);
-                            break;
-                        case END: System.err.println("An end. Bye bye!"); return;
-                    }
-
-                } catch (InvalidMessageException e) {
-                    System.err.println(e.getMessage());
+                        }
+                        // System.err.println("This was the move: " + r.move);
+                        // System.err.println("Is the game over? " + r.end);
+                        // If swapped
+                        if (r.move == -1) {
+                            side = side.opposite();
+                        }
+                        if (r.again) {
+                            Move move = AlphaBeta.getBestMoveID(ai_depth, new State(true, globalBoard, side, null));
+                            sendMsg(Protocol.createMoveMsg(move.getHole()));
+                        }
+                        if (!r.end) // System.err.println("Is it our turn again? " + r.again);
+                        // System.err.print("The board:\n" + globalBoard);
+                        break;
+                    case END: //System.err.println("An end. Bye bye!"); 
+                            return;
                 }
-            }
-        }
-        catch (IOException e)
-        {
-            System.err.println("This shouldn't happen: " + e.getMessage());
-        } finally {
-            writer.close();
         }
     }
 }
